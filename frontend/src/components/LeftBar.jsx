@@ -28,7 +28,6 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter}) => {
         console.error("❌ No authenticated user found.");
         return;
       }
-
       const firebaseToken = await user.getIdToken();
       console.log("🔥 Firebase Token Retrieved:", firebaseToken);
 
