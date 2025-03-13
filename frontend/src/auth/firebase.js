@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut,onAuthStateChanged } from "firebase/auth";
 
 // Your Firebase config
 const firebaseConfig = {
@@ -14,7 +14,7 @@ const firebaseConfig = {
   
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+const auth = getAuth(app);      
 const provider = new GoogleAuthProvider();
 
 // Google Sign-In function
@@ -39,4 +39,16 @@ const logOut = async () => {
   }
 };
 
-export { auth, signInWithGoogle, logOut };
+// ✅ Utility function to wait for Firebase Auth to restore the user
+const getAuthenticatedUser = () => {
+  return new Promise((resolve) => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      unsubscribe(); // Stop listening after getting the user
+      resolve(user);
+    });
+  });
+};
+
+
+export { auth, signInWithGoogle, logOut ,getAuthenticatedUser};
