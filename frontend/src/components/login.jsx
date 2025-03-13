@@ -10,12 +10,12 @@ const LoginButton = () => {
   const user = useSelector((state) => state.auth?.user);
   const navigate = useNavigate();
 
-  // ✅ Redirect after login
+  // Redirect after login
   useEffect(() => {
     if (user) {
       navigate("/editor");
     }
-  }, [user, navigate]); // ✅ Runs when user changes
+  }, [user, navigate]); 
 
   const handleLogin = async () => {
     const auth = getAuth();
@@ -28,13 +28,13 @@ const LoginButton = () => {
       const user = result.user;
 
       if (!user) {
-        console.error("❌ User not found after sign-in!");
+        console.error("User not found after sign-in!");
         return;
       }
 
-      console.log("🔥 User from Firebase:", user);
+      console.log("User from Firebase:", user);
 
-      // ✅ Dispatch user data to Redux
+      // Dispatch user data to Redux
       dispatch(setUser({
         uid: user.uid,
         displayName: user.displayName,
@@ -42,46 +42,46 @@ const LoginButton = () => {
         photoURL: user.photoURL,
       }));
 
-      console.log("✅ User data dispatched to Redux:", user);
+      console.log("User data dispatched to Redux:", user);
 
-      // ✅ Get Firebase token
+      // Get Firebase token
       const firebaseToken = await user.getIdToken();
-      console.log("🔥 Firebase Token Retrieved:", firebaseToken);
+      console.log("Firebase Token Retrieved:", firebaseToken);
 
-      // ✅ Get Google OAuth token from Firebase
+      // Get Google OAuth token from Firebase
       const credential = GoogleAuthProvider.credentialFromResult(result);
       if (!credential) {
-        console.error("❌ No Google credentials received!");
+        console.error("No Google credentials received!");
         return;
       }
 
       const googleAccessToken = credential.accessToken;
       if (!googleAccessToken) {
-        console.error("❌ Google OAuth Token is missing!");
+        console.error("Google OAuth Token is missing!");
         return;
       }
 
-      console.log("🔥 Google OAuth Token Retrieved:", googleAccessToken);
+      console.log("Google OAuth Token Retrieved:", googleAccessToken);
 
-      // ✅ Send Firebase & Google token to backend
-      console.log("🔵 Sending tokens to backend...");
-      const response = await axios.post("http://localhost:8000/auth/google/callback", {
+      // Send Firebase & Google token to backend
+      console.log("Sending tokens to backend...");
+      const response = await axios.post("http://localhost:7000/auth/google/callback", {
         googleAccessToken
       }, {
         headers: { Authorization: `Bearer ${firebaseToken}` },
       });
 
-      console.log("✅ Backend Response:", response.data);
-      console.log("✅ Google Drive authentication completed!");
+      console.log("Backend Response:", response.data);
+      console.log("Google Drive authentication completed!");
     } catch (error) {
-      console.error("❌ Authentication failed:", error);
+      console.error("Authentication failed:", error);
     }
   };
 
   return (
     <div>
       {user ? (
-        <p>Redirecting...</p> // ✅ Show a placeholder instead of `navigate()`
+        <p>Redirecting...</p> 
       ) : (
         <button onClick={handleLogin}>Sign in with Google</button>
       )}

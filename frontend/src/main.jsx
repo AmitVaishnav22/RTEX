@@ -29,7 +29,7 @@ const router = createBrowserRouter([
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Provider store={store}>
-      <PersistGate loading={null} persistor={persistor}>
+      <PersistGate loading={<p>Loading...</p>} persistor={persistor}>
         <RouterProvider router={router} />
       </PersistGate>
     </Provider>
