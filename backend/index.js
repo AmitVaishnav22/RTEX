@@ -1,13 +1,20 @@
 import connectDB from "./db/db.js";
 import dotenv from "dotenv"
 import {app} from "./app.js"
+import express from "express"
+import http, { createServer } from "http"
+import {Server} from "socket.io"
+import { setupWebSocket } from "./services/webSocketService.js";
 
 dotenv.config({
   path:'./.env'
 })
 
+
+const server=createServer(app)
 connectDB().then(()=>{
-  app.listen(process.env.PORT|| 7000,()=>{
+  const io=setupWebSocket(server)
+  server.listen(process.env.PORT|| 7000,()=>{
       console.log(`Server running at port : ${process.env.PORT}`)
   })
 }).catch((error)=>{
