@@ -16,6 +16,7 @@ backend/firebaseServiceAsccount.json
 frontend/build/
 backend/dist/
 backend/firebaseServiceAsccount.json
+backend/firebaseServiceAccount.json:1
 
 # Logs
 logs/
