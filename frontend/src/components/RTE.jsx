@@ -1,23 +1,38 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import axios from "axios";
 import { getAuth } from "firebase/auth";
 import { useSelector } from "react-redux";
 import LeftBar from "./LeftBar";
-import CollabModal from "./collabModal";
-// import { joinRoom,sendContent,onReceiveContent,onUserJoined } from "./WSService";
+import CollabButton from "./collabModal";
+import { setupWebSocket } from "./WSService.js";
 const LetterEditor = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [letterId, setLetterId] = useState(null); 
   const [letters, setLetters] = useState([]);
-  const [isCollabOpen, setIsCollabOpen] = useState(false);
-  // const [roomId, setRoomId] = useState(null);
-  // const [usersInRoom, setUsersInRoom] = useState([]);
+  const [roomId, setRoomId] = useState(null);
+  const [usersInRoom, setUsersInRoom] = useState([]);
+
 
   const user = useSelector((state) => state.auth.user);
   const auth = getAuth();
   const authUser = auth.currentUser;
+
+  const socketRef = useRef(null)
+  //const editorRef = useRef(null)
+  useEffect(() => {
+    if (roomId) {
+      socketRef.current = setupWebSocket(roomId, setUsersInRoom, setContent,user?.displayName);
+    }
+    return () => {
+      if (socketRef.current && socketRef.current.disconnect) {
+        socketRef.current.disconnect();
+        socketRef.current = null;  // Reset after disconnecting
+      }
+    };
+  }, [roomId]);
+  
 
   console.log("Current User:", user);
   const fetchLetters = async () => {
@@ -120,29 +135,46 @@ const LetterEditor = () => {
       alert("Failed to save letter to Google Drive.");
     }
   };
+  useEffect(() => {
+    if(roomId){
+      setRoomId(roomId);
+    }
+  },[roomId])
+  // useEffect(() => {
+  //   if (socketRef.current) {
+  //     socketRef.current.on("user-type-changed", ({ username }) => {
+  //       console.log(`${username} is typing...`);
+  //       if (editorRef.current) { // editorRef should reference your TinyMCE editor instance
+  //         editorRef.current.notificationManager.open({
+  //           text: `${username} typed`,
+  //           type: "info",
+  //           timeout: 1000, 
+  //         });
+  //       }
+  //     });
+  //   }
+  // }, [socketRef.current]);
 
-  // const handleCreateRoom = () => {
-  //   const newRoomId = Math.random().toString(36).substr(2, 6);
-  //   setRoomId(newRoomId);
-  //   joinRoom(newRoomId, user?.displayName || "Anonymous");
-  //   alert(`Room Created: ${newRoomId}`);
-  //   setIsCollabOpen(false);
-  // };
-  // const handleJoinRoom = (roomId) => {
-  //   setRoomId(roomId);
-  //   joinRoom(roomId, user?.displayName || "Anonymous");
-  //   alert(`Joined Room: ${roomId}`);
-  //   setIsCollabOpen(false);
-  // };
-
-  // onReceiveContent((newContent) => setContent(newContent));
-
-  // onUserJoined((username) => {
-  //   alert(`${username} joined the room`);
-  //   setUsersInRoom((prevUsers) => [...prevUsers, username]);
-  // });
-
-
+  const handleCreateRoom = async () => {
+    const roomId=`room-${Date.now()}`
+    setRoomId(roomId)
+    socketRef.current=setupWebSocket(roomId,setUsersInRoom,setContent,user?.displayName)
+  }
+  const handleJoinRoom = async (inputRoomId) => {
+    const roomId = inputRoomId.startsWith("room-") ? inputRoomId : `room-${inputRoomId}`;
+    setRoomId(roomId);
+    socketRef.current=setupWebSocket(roomId,setUsersInRoom,setContent,user?.displayName)
+  }
+  const handleLeaveRoom = () => {
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+      socketRef.current = null;
+    }
+    
+    setRoomId(null);
+    setUsersInRoom([]);
+    alert("You have left the room.");
+  };
   return (
     <div className="flex h-screen">
       {/* Left Sidebar */}
@@ -159,17 +191,19 @@ const LetterEditor = () => {
       <div className="flex-grow p-6">
         <h2 className="text-2xl font-bold mb-4">
           {letterId ? "Editing Letter" : "Write a New Letter"}
+          <div className="typing-status text-sm italic text-gray-500 mt-2">
+            {typingStatus}
+          </div>
         </h2>
-        <button onClick={() => setIsCollabOpen(true)} className="bg-purple-600 text-white px-6 py-2 rounded-lg w-full">
-          🤝 Collab
-        </button>
-        {/* {isCollabOpen && (
-        <CollabModal onClose={() => setIsCollabOpen(false)} onCreateRoom={handleCreateRoom} onJoinRoom={handleJoinRoom} />
+        <CollabButton onCreateRoom={handleCreateRoom} onJoinRoom={handleJoinRoom} />
+        {roomId &&(
+          <div className="bg-gray-100 p-4 rounded-lg mt-4">
+            <strong>Collab Room:</strong> {roomId} ({usersInRoom.length} users)
+            <button onClick={handleLeaveRoom} className="bg-red-600 text-white px-2 py-1 rounded-lg ml-4">
+              Leave Room
+            </button>
+          </div>
         )}
-        <h2 className="text-2xl font-bold mb-4">
-          {roomId ? `Collab Room: ${roomId} (${usersInRoom.length} users)` : "Write a New Letter"}
-        </h2> */}
-
         {/* Title Input */}
         <input
           type="text"
@@ -180,10 +214,29 @@ const LetterEditor = () => {
         />
         <Editor
           apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
+          onInit={(evt, editor) => {
+            if (!socketRef.current) {
+              socketRef.current = editor;
+            }
+            // editor.on("keydown", () => {
+            //   if (socketRef.current && roomId) {
+            //     socketRef.current.emit("user-typing", {
+            //       roomId,
+            //       username: user?.displayName,
+            //     });
+            //   }
+            // });
+          }}
+
           value={content}
           onEditorChange={(newContent) => {
             setContent(newContent);
-            //if (roomId) sendContent(roomId, newContent);
+            if (socketRef.current && roomId) {
+              socketRef.current.emit("send-content", { roomId, content: newContent });
+            }
+            else{
+              console.log("No room set for content update");
+            }
           }}
           init={{
             height: "80vh",
