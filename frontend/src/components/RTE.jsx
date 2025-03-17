@@ -13,6 +13,8 @@ const LetterEditor = () => {
   const [letters, setLetters] = useState([]);
   const [roomId, setRoomId] = useState(null);
   const [usersInRoom, setUsersInRoom] = useState([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showUsersList, setShowUsersList]=useState(false);
 
 
   const user = useSelector((state) => state.auth.user);
@@ -62,18 +64,6 @@ const LetterEditor = () => {
   useEffect(() => {
     localStorage.setItem("draftContent", content);
   }, [content]);
-
-  // Handle selecting a letter for editing
-  const handleSelectLetter = (letter) => {
-    setTitle(letter.title);
-    setContent(letter.content);
-    setLetterId(letter._id); 
-  };
-  const handleCreateNewLetter = () => {
-    setTitle("");
-    setContent("");
-    setLetterId(null); 
-  };
 
   // Save or Update Letter in DB
   const handleSaveToDB = async () => {
@@ -140,20 +130,6 @@ const LetterEditor = () => {
       setRoomId(roomId);
     }
   },[roomId])
-  // useEffect(() => {
-  //   if (socketRef.current) {
-  //     socketRef.current.on("user-type-changed", ({ username }) => {
-  //       console.log(`${username} is typing...`);
-  //       if (editorRef.current) { // editorRef should reference your TinyMCE editor instance
-  //         editorRef.current.notificationManager.open({
-  //           text: `${username} typed`,
-  //           type: "info",
-  //           timeout: 1000, 
-  //         });
-  //       }
-  //     });
-  //   }
-  // }, [socketRef.current]);
 
   const handleCreateRoom = async () => {
     const roomId=`room-${Date.now()}`
@@ -175,66 +151,143 @@ const LetterEditor = () => {
     setUsersInRoom([]);
     alert("You have left the room.");
   };
-  return (
-    <div className="flex h-screen">
-      {/* Left Sidebar */}
-      <LeftBar onSelectLetter={(letter) => {
-          setTitle(letter.title);
-          setContent(letter.content);
-          setLetterId(letter._id);
-        }} onCreateNewLetter={() => {
-          setTitle("");
-          setContent("");
-          setLetterId(null);
-        }} fetchLetters={fetchLetters} letters={letters} />
-      {/* Editor Section */}
-      <div className="flex-grow p-6">
-        <h2 className="text-2xl font-bold mb-4">
-          {letterId ? "Editing Letter" : "Write a New Letter"}
-          <div className="typing-status text-sm italic text-gray-500 mt-2">
-            {typingStatus}
-          </div>
-        </h2>
-        <CollabButton onCreateRoom={handleCreateRoom} onJoinRoom={handleJoinRoom} />
-        {roomId &&(
-          <div className="bg-gray-100 p-4 rounded-lg mt-4">
-            <strong>Collab Room:</strong> {roomId} ({usersInRoom.length} users)
-            <button onClick={handleLeaveRoom} className="bg-red-600 text-white px-2 py-1 rounded-lg ml-4">
-              Leave Room
-            </button>
-          </div>
-        )}
-        {/* Title Input */}
+  const handleGenerateAI = async () => {
+    setIsGenerating(true);
+    try {
+      const response = await axios.post("http://localhost:7000/ai/generate", { text: content });
+      const aiSuggestion = response.data.suggestion.trim();
+      console.log(aiSuggestion)
+      setContent((prevContent) => prevContent.trim()+" "+aiSuggestion);
+    } catch (error) {
+      console.error("Error generating AI text:", error);
+    }
+    setIsGenerating(false);
+  };
+return (
+  <div className="flex h-screen">
+    {/* Left Sidebar - Stays Fixed */}
+    <LeftBar
+      onSelectLetter={(letter) => {
+        setTitle(letter.title);
+        setContent(letter.content);
+        setLetterId(letter._id);
+      }}
+      onCreateNewLetter={() => {
+        setTitle("");
+        setContent("");
+        setLetterId(null);
+      }}
+      fetchLetters={fetchLetters}
+      letters={letters}
+    />
+
+    <div className="flex-grow flex flex-col">
+      <div className="flex items-center justify-between bg-gray-100 p-3 rounded-lg shadow-md">
         <input
           type="text"
           placeholder="Title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="border p-2 w-full mb-4"
+          className="border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-300 p-2 rounded-md w-1/4 outline-none transition"
         />
+        <div className="flex items-center gap-4">
+
+          <button onClick={handleSaveToDB} className="bg-blue-500 rounded-full text-white px-4 py-2">
+            {letterId ? "update" : "save"}
+          </button>
+  
+          <button 
+            onClick={handleGenerateAI} 
+            disabled={isGenerating} 
+            className="relative overflow-hidden bg-blue-500 text-white px-6 py-2 rounded-full flex items-center gap-2 font-semibold transition-transform transform hover:scale-105 disabled:opacity-50"
+          >
+            <span className="absolute inset-0 bg-gradient-to-r from-blue-400 via-white to-blue-400 opacity-30 animate-shimmer"></span>
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2v2"></path>
+              <path d="M12 20v2"></path>
+              <path d="M4.93 4.93l1.41 1.41"></path>
+              <path d="M18.36 18.36l1.41 1.41"></path>
+              <path d="M2 12h2"></path>
+              <path d="M20 12h2"></path>
+              <path d="M4.93 19.07l1.41-1.41"></path>
+              <path d="M18.36 5.64l1.41-1.41"></path>
+              <circle cx="12" cy="12" r="4"></circle>
+            </svg>
+            {isGenerating ? "Generating..." : "Generate with AI"}
+          </button>
+
+          <CollabButton onCreateRoom={handleCreateRoom} onJoinRoom={handleJoinRoom} />
+          <button onClick={handleSaveToDrive} className="relative group" title="save to google drive">
+            <img 
+              src="https://th.bing.com/th?id=OIP.lgdmCc6UHAWc27h0o4tSbwHaHa&w=250&h=250&c=8&rs=1&qlt=90&o=6&pid=3.1&rm=2" 
+              alt="Google Drive" 
+              className="w-12 h-10 rounded-full object-contain"
+            />
+          </button>
+
+          <button className="relative group" title="help">
+            <img 
+              src="https://cdn-icons-png.flaticon.com/512/9524/9524599.png" 
+              alt="Help" 
+              className="w-10 h-10 rounded-full object-contain"
+            />
+          </button>
+
+        </div>
+      </div>
+        {roomId && (
+          <div className="relative">
+            {/* Collab Room Info with Clickable User Count */}
+            <div className="bg-gray-200 px-3 py-1 rounded-md text-sm flex items-center gap-2 mt-3">
+              <strong>Collab Room:</strong> {roomId}
+              <span 
+                className="cursor-pointer text-blue-600 underline"
+                onClick={() => setShowUsersList(!showUsersList)}
+              >
+                ({usersInRoom.length} users)
+              </span>
+            </div>
+            {showUsersList && (
+              <div className="absolute top-10 left-0 bg-white shadow-lg rounded-lg p-4 w-64 z-50">
+                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-2">
+                  Users in Room
+                </h3>
+                <ul className="max-h-48 overflow-y-auto">
+                  {usersInRoom.map((user) => (
+                    <li key={user.id} className="flex items-center gap-2 py-2 border-b last:border-0">
+                      <img src={user.photoURL || "https://static.vecteezy.com/system/resources/previews/013/042/571/large_2x/default-avatar-profile-icon-social-media-user-photo-in-flat-style-vector.jpg"} alt="Profile" className="w-8 h-8 rounded-full" />
+                      <span className="text-gray-700">{user.username}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* Leave Room Button */}
+                <div className="flex justify-end mt-3">
+                  <button 
+                    onClick={handleLeaveRoom} 
+                    className="bg-red-600 text-white px-3 py-1 rounded-md text-sm hover:bg-red-700"
+                  >
+                    Leave Room
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      <div className="flex-grow mt-4">
         <Editor
           apiKey={import.meta.env.VITE_TINYMCE_API_KEY}
           onInit={(evt, editor) => {
             if (!socketRef.current) {
               socketRef.current = editor;
             }
-            // editor.on("keydown", () => {
-            //   if (socketRef.current && roomId) {
-            //     socketRef.current.emit("user-typing", {
-            //       roomId,
-            //       username: user?.displayName,
-            //     });
-            //   }
-            // });
           }}
-
           value={content}
           onEditorChange={(newContent) => {
             setContent(newContent);
             if (socketRef.current && roomId) {
               socketRef.current.emit("send-content", { roomId, content: newContent });
-            }
-            else{
+            } else {
               console.log("No room set for content update");
             }
           }}
@@ -247,7 +300,7 @@ const LetterEditor = () => {
               "searchreplace", "visualblocks", "code", "fullscreen",
               "insertdatetime", "media", "table", "paste", "code", "help", "wordcount",
               "emoticons", "hr", "directionality", "pagebreak", "nonbreaking",
-              "tiny_draw" 
+              "tiny_draw"
             ],
             toolbar:
               "undo redo | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | " +
@@ -263,18 +316,10 @@ const LetterEditor = () => {
             content_style: "body { font-family: Arial, sans-serif; font-size: 14px; }",
           }}
         />
-        {/* Action Buttons */}
-        <div className="flex gap-4 mt-4">
-          <button onClick={handleSaveToDB} className="bg-blue-600 text-white px-6 py-2 rounded-lg w-full">
-            {letterId ? "Update Letter" : "Save Letter"}
-          </button>
-          <button onClick={handleSaveToDrive} className="bg-green-600 text-white px-6 py-2 rounded-lg w-full">
-            Save to Google Drive
-          </button>
-        </div>
       </div>
     </div>
-  );
-};
+  </div>
+);
+}
 
 export default LetterEditor;

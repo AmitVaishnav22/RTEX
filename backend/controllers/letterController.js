@@ -1,40 +1,68 @@
 import Letter from "../models/letters.model.js";
 import admin from "../db/firebase.js";
 import { google } from "googleapis";
+import { getCache,setCache,delCache } from "../services/redisService.js";
 
 const getLetters = async (req, res) => {
-  const letters = await Letter.find({ userId: req.user.uid });
-  //console.log(letters)
-  res.json(letters);
+  try {
+    const userId = req.user.uid;
+    const cacheKey = `letters:${userId}`;
+
+    const cachedLetters = await getCache(cacheKey);
+    if (cachedLetters) {
+      return res.json(cachedLetters);
+    }
+    const letters = await Letter.find({ userId });
+    await setCache(cacheKey, letters, 3600); 
+    res.json(letters);
+  } catch (error) {
+    console.error("Error fetching letters:", error);
+    res.status(500).json({ error: "Failed to fetch letters." });
+  }
 };
 
 const saveLetter = async (req, res) => {
-  const { title, content } = req.body;
-  await Letter.create({ userId: req.user.uid, title, content });
-  res.json({ message: "Letter saved!" });
+  try {
+    const { title, content } = req.body;
+    const userId = req.user.uid;
+
+    await Letter.create({ userId, title, content });
+
+    await delCache(`letters:${userId}`);
+
+    res.json({ message: "Letter saved!" });
+  } catch (error) {
+    console.error("Error saving letter:", error);
+    res.status(500).json({ error: "Failed to save letter." });
+  }
 };
 
 const updateLetter = async (req, res) => {
   try {
-      const { title, content } = req.body;
-      const letterId = req.params.id;
-      const updatedLetter = await Letter.findByIdAndUpdate(letterId, { title, content }, { new: true });
-      if (!updatedLetter) {
-            return res.status(404).json({ error: "Letter not found" });
-        }
-        res.json({ message: "Letter updated successfully", updatedLetter });
-      } catch (error) {
-        console.error("Error updating letter:", error);
-        res.status(500).json({ error: "Failed to update letter." });
+    const { title, content } = req.body;
+    const letterId = req.params.id;
+    const updatedLetter = await Letter.findByIdAndUpdate(letterId, { title, content }, { new: true });
+
+    if (!updatedLetter) {
+      return res.status(404).json({ error: "Letter not found" });
     }
+    await delCache(`letters:${req.user.uid}`);
+
+    res.json({ message: "Letter updated successfully", updatedLetter });
+  } catch (error) {
+    console.error("Error updating letter:", error);
+    res.status(500).json({ error: "Failed to update letter." });
+  }
 };
 
 const deleteLetter = async (req, res) => {
   try {
     await Letter.findByIdAndDelete(req.params.id);
+    await delCache(`letters:${req.user.uid}`);
     res.json({ message: "Letter deleted successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to delete letter" });
+    console.error("Error deleting letter:", error);
+    res.status(500).json({ error: "Failed to delete letter." });
   }
 };
 
