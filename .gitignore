@@ -13,9 +13,9 @@ backend/firebaseServiceAsccount.json
 .env.test
 
 # Build files
-frontend/build/
+frontend/build/ 
 backend/dist/
-backend/firebaseServiceAsccount.json
+backend/firebaseServiceAccount.json
 backend/firebaseServiceAccount.json:1
 
 # Logs
