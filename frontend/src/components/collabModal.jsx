@@ -9,9 +9,14 @@ const CollabButton = ({ onCreateRoom, onJoinRoom }) => {
       {/* Collaboration Button */}
       <button
         onClick={() => setIsCollabOpen(true)}
-        className="bg-purple-600 text-white px-6 py-2 rounded-lg w-full"
+        className="bg-white-600 text-white px-1 py-2 rounded-full w-full"
+        title="collab-mode"
       >
-        🤝 Collab
+        <img 
+            src="https://cdn.iconscout.com/icon/premium/png-512-thumb/add-member-526606.png" 
+            alt="collab-mode" 
+            className="w-12 h-12 rounded-full object-contain"
+          />
       </button>
 
       {/* Modal for Room Creation and Joining */}
@@ -24,7 +29,7 @@ const CollabButton = ({ onCreateRoom, onJoinRoom }) => {
               onCreateRoom();
               setIsCollabOpen(false);
             }}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg w-full mb-2"
+            className="bg-blue-500 text-white px-4 py-2 rounded-lg w-full mb-2"
           >
             Create Room
           </button>

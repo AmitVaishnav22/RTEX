@@ -10,7 +10,6 @@ dotenv.config({
   path:'./.env'
 })
 
-
 const server=createServer(app)
 connectDB().then(()=>{
   const io=setupWebSocket(server)
