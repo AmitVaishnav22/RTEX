@@ -209,7 +209,7 @@ return (
               <path d="M18.36 18.36l1.41 1.41"></path>
               <path d="M2 12h2"></path>
               <path d="M20 12h2"></path>
-              <path d="M4.93 19.07l1.41-1.41"></path>
+              <path d="M4.93 19.07l1.41-1.41"></path>  
               <path d="M18.36 5.64l1.41-1.41"></path>
               <circle cx="12" cy="12" r="4"></circle>
             </svg>
