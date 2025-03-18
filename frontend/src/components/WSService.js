@@ -36,6 +36,29 @@ export const setupWebSocket = (roomId, setUsersInRoom, setContent, userName) => 
     // }
     });
 
+    socket.on("receive-cursor", ({ username, cursorPosition }) => {
+      console.log(`${username} moved their cursor`, cursorPosition);
+      let cursorLabel = document.getElementById(`cursor-${username}`);
+    
+      if (!cursorLabel) {
+        cursorLabel = document.createElement("div");
+        cursorLabel.id = `cursor-${username}`;
+        cursorLabel.innerText = username;
+        cursorLabel.style.position = "absolute";
+        cursorLabel.style.background = "#333";
+        cursorLabel.style.color = "#fff";
+        cursorLabel.style.padding = "4px 8px";
+        cursorLabel.style.borderRadius = "5px";
+        cursorLabel.style.fontSize = "12px";
+        cursorLabel.style.whiteSpace = "nowrap";
+        document.body.appendChild(cursorLabel);
+      }
+      
+      cursorLabel.style.left = `${cursorPosition.left+140}px`;
+      cursorLabel.style.top = `${cursorPosition.top +290}px`; 
+    });
+    
+
   
     return socket;
   };
