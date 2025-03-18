@@ -163,6 +163,8 @@ const LetterEditor = () => {
     }
     setIsGenerating(false);
   };
+  const editor= useRef(null);
+  const username=user?.displayName;
 return (
   <div className="flex h-screen">
     {/* Left Sidebar - Stays Fixed */}
@@ -283,14 +285,59 @@ return (
             }
           }}
           value={content}
-          onEditorChange={(newContent) => {
+          onEditorChange={(newContent, editor) => {
             setContent(newContent);
-            if (socketRef.current && roomId) {
+          
+            if (editor && roomId) {
               socketRef.current.emit("send-content", { roomId, content: newContent });
+  
+              const selection = editor.selection;
+              if (selection && selection.getRng) {
+                const range = selection.getRng();
+                if (range) {
+                  const rects = range.getClientRects();
+                  const rect = rects[0] || range.getBoundingClientRect();
+
+                  socketRef.current.emit("send-cursor", {
+                    roomId,
+                    username,
+                    cursorPosition: {
+                      left: rect.left,
+                      top: rect.top,
+                    },
+                  });
+                }
+              } else {
+                console.warn("Selection API is not available yet!");
+              }
             } else {
               console.log("No room set for content update");
             }
           }}
+          
+          onKeyUp={(evt, editor) => {
+            if (editor && roomId) {
+              const selection = editor.selection;
+              if (selection && selection.getRng) {
+                const range = selection.getRng();
+                if (range) {
+                  const rects = range.getClientRects();
+                  const rect = rects[0] || range.getBoundingClientRect();
+                  socketRef.current.emit("send-cursor", {
+                    roomId,
+                    username,
+                    cursorPosition: {
+                      left: rect.left,
+                      top: rect.top,
+                    },
+                  });
+                }
+              } else {
+                console.warn("Selection API is not available yet!");
+              }
+            }
+          }}
+          
           init={{
             height: "80vh",
             width: "100%",

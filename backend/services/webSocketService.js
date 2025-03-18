@@ -49,10 +49,12 @@ export const setupWebSocket = (server) => {
       socket.to(roomId).emit("receive-content", content);
     });
 
-    socket.on("user-typing", ({ roomId, username }) => {
-      console.log(`${username} is typing in room ${roomId}`);
-      socket.to(roomId).emit("user-type-changed", { username });
+    socket.on("send-cursor", ({ roomId, username, cursorPosition }) => {
+      console.log(`${username} is moving cursor in room ${roomId} and ${cursorPosition.left}`);
+    
+      socket.to(roomId).emit("receive-cursor", { username, cursorPosition });
     });
+    
     
     
     socket.on("disconnect", () => {
