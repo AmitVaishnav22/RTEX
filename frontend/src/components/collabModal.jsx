@@ -8,7 +8,7 @@ const CollabButton = ({ onCreateRoom, onJoinRoom }) => {
     <div className="relative">
       {/* Collaboration Button */}
       <button
-        onClick={() => setIsCollabOpen(true)}
+        onClick={() => setIsCollabOpen(true)} 
         className="bg-white-600 text-white px-1 py-2 rounded-full w-full"
         title="collab-mode"
       >
