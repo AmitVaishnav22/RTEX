@@ -4,7 +4,7 @@ const CollabButton = ({ onCreateRoom, onJoinRoom }) => {
   const [isCollabOpen, setIsCollabOpen] = useState(false);
   const roomIdRef = useRef(null);
 
-  return (
+  return ( 
     <div className="relative">
       {/* Collaboration Button */}
       <button
