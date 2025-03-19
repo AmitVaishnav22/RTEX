@@ -15,6 +15,15 @@ export const setupWebSocket = (roomId, setUsersInRoom, setContent, userName) => 
     socket.on("room-data", ({ users }) => {
       console.log("Updated users in room:", users);
       setUsersInRoom(users);
+      const activeUsernames = users.map((user) => user.username);
+      document.querySelectorAll("[id^='cursor-']").forEach((cursorLabel) => {
+  
+        const labelUsername = cursorLabel.id.replace("cursor-", "");
+        // Remove the cursor label if it doesn't belong to an active user
+        if (!activeUsernames.includes(labelUsername)) {
+          cursorLabel.remove();
+        }
+      });
     });
   
     socket.on("receive-content", (content) => {
@@ -30,10 +39,10 @@ export const setupWebSocket = (roomId, setUsersInRoom, setContent, userName) => 
 
     socket.on("user-left", ({ username }) => {
       console.log(`${username} left the room.`);
-    //   const cursorIndicator = document.getElementById(`cursor-${username}`);
-    //   if (cursorIndicator) {
-    //     cursorIndicator.remove();
-    // }
+      const cursorIndicator = document.getElementById(`cursor-${username}`);
+      if (cursorIndicator) {
+        cursorIndicator.remove();
+    }
     });
 
     socket.on("receive-cursor", ({ username, cursorPosition }) => {
