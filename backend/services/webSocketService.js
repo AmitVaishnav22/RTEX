@@ -70,7 +70,7 @@ export const setupWebSocket = (server) => {
 
           const [removedUser] = room.users.splice(userIndex, 1);
 
-          //socket.to(roomId).emit("user-left", { username: removedUser.username });
+          socket.to(roomId).emit("user-left", { username: removedUser.username });
 
           io.to(roomId).emit("room-data", { roomId, users: room.users });
           if (room.users.length === 0) {

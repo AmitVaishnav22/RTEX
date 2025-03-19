@@ -1,7 +1,7 @@
 import React, { useState, useEffect,useRef } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import axios from "axios";
-import { getAuth } from "firebase/auth";
+import { getAuth ,onAuthStateChanged} from "firebase/auth";
 import { useSelector } from "react-redux";
 import LeftBar from "./LeftBar";
 import CollabButton from "./collabModal";
@@ -15,20 +15,42 @@ const LetterEditor = () => {
   const [usersInRoom, setUsersInRoom] = useState([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [showUsersList, setShowUsersList]=useState(false);
+  const [authUser, setAuthUser] = useState(null);
+  const [letterTimestamps,setLetterTimestamps] = useState(null);
 
 
   const user = useSelector((state) => state.auth.user);
+  console.log("user",user);
   const auth = getAuth();
-  const authUser = auth.currentUser;
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setAuthUser(user);
+      } else {
+        setAuthUser(null);
+      }
+    });
+    return () => unsubscribe();
+  }, [auth]);
 
   const socketRef = useRef(null)
   //const editorRef = useRef(null)
+  const clearAllCursors = () => {
+    document.querySelectorAll("[id^='cursor-']").forEach((cursorLabel) => {
+      cursorLabel.remove();
+    });
+  };
   useEffect(() => {
     if (roomId) {
       socketRef.current = setupWebSocket(roomId, setUsersInRoom, setContent,user?.displayName);
     }
     return () => {
       if (socketRef.current && socketRef.current.disconnect) {
+        socketRef.current.off("room-data");
+    socketRef.current.off("user-left");
+    socketRef.current.off("receive-cursor");
+        clearAllCursors();
         socketRef.current.disconnect();
         socketRef.current = null;  // Reset after disconnecting
       }
@@ -54,8 +76,10 @@ const LetterEditor = () => {
   };
 
   useEffect(() => {
-    fetchLetters();
-  }, []);
+    if (authUser) {
+      fetchLetters();
+    }
+  }, [authUser]);
 
   useEffect(() => {
     localStorage.setItem("draftTitle", title);
@@ -64,6 +88,12 @@ const LetterEditor = () => {
   useEffect(() => {
     localStorage.setItem("draftContent", content);
   }, [content]);
+  useEffect(() => {
+    const savedDraft = localStorage.getItem("draftContent");
+    if (savedDraft) {
+      setContent(savedDraft);
+    }
+  }, []);
 
   // Save or Update Letter in DB
   const handleSaveToDB = async () => {
@@ -83,7 +113,7 @@ const LetterEditor = () => {
       await axios({
         method,
         url,
-        data: { title, content },
+        data: { title: title || "untitled", content },
         headers: {
           Authorization: `Bearer ${firebaseToken}`,
           "Content-Type": "application/json",
@@ -148,6 +178,7 @@ const LetterEditor = () => {
     }
     
     setRoomId(null);
+    clearAllCursors();
     setUsersInRoom([]);
     alert("You have left the room.");
   };
@@ -173,11 +204,16 @@ return (
         setTitle(letter.title);
         setContent(letter.content);
         setLetterId(letter._id);
+        setLetterTimestamps({ 
+          createdAt: letter.createdAt, 
+          updatedAt: letter.updatedAt 
+        });
       }}
       onCreateNewLetter={() => {
         setTitle("");
         setContent("");
         setLetterId(null);
+        setLetterTimestamps({ createdAt: null, updatedAt: null });
       }}
       fetchLetters={fetchLetters}
       letters={letters}
@@ -192,12 +228,16 @@ return (
           onChange={(e) => setTitle(e.target.value)}
           className="border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-300 p-2 rounded-md w-1/4 outline-none transition"
         />
+        {letterId && letterTimestamps.createdAt && letterTimestamps.updatedAt && (
+              <div className="text-sm text-gray-600">
+                <p>Created: {new Date(letterTimestamps.createdAt).toLocaleString()}</p>
+                <p>Last Updated: {new Date(letterTimestamps.updatedAt).toLocaleString()}</p>
+              </div>
+            )}
         <div className="flex items-center gap-4">
-
           <button onClick={handleSaveToDB} className="bg-blue-500 rounded-full text-white px-4 py-2">
             {letterId ? "update" : "save"}
           </button>
-  
           <button 
             onClick={handleGenerateAI} 
             disabled={isGenerating} 
@@ -287,7 +327,7 @@ return (
           value={content}
           onEditorChange={(newContent, editor) => {
             setContent(newContent);
-          
+            localStorage.setItem("draftContent", JSON.stringify({ content: newContent }));
             if (editor && roomId) {
               socketRef.current.emit("send-content", { roomId, content: newContent });
   
