@@ -20,7 +20,7 @@ const LetterEditor = () => {
 
 
   const user = useSelector((state) => state.auth.user);
-  console.log("user",user);
+  //console.log("user",user);
   const auth = getAuth();
 
   useEffect(() => {
@@ -44,6 +44,9 @@ const LetterEditor = () => {
   useEffect(() => {
     if (roomId) {
       socketRef.current = setupWebSocket(roomId, setUsersInRoom, setContent,user?.displayName);
+      if (content && content.trim() !== "") {
+        socketRef.current.emit("send-content", { roomId, content });
+      }
     }
     return () => {
       if (socketRef.current && socketRef.current.disconnect) {
@@ -52,7 +55,7 @@ const LetterEditor = () => {
     socketRef.current.off("receive-cursor");
         clearAllCursors();
         socketRef.current.disconnect();
-        socketRef.current = null;  // Reset after disconnecting
+        socketRef.current = null; 
       }
     };
   }, [roomId]);
@@ -84,14 +87,14 @@ const LetterEditor = () => {
   useEffect(() => {
     localStorage.setItem("draftTitle", title);
   }, [title]);
-
-  useEffect(() => {
-    localStorage.setItem("draftContent", content);
-  }, [content]);
   useEffect(() => {
     const savedDraft = localStorage.getItem("draftContent");
+    const savedTitle = localStorage.getItem("draftTitle");
     if (savedDraft) {
       setContent(savedDraft);
+    }
+    if (savedTitle) {
+      setTitle(savedTitle);
     }
   }, []);
 
@@ -220,7 +223,7 @@ return (
     />
 
     <div className="flex-grow flex flex-col">
-      <div className="flex items-center justify-between bg-gray-100 p-3 rounded-lg shadow-md">
+      <div className="flex items-center justify-between bg-gray-100 p-2 rounded-lg shadow-md">
         <input
           type="text"
           placeholder="Title"
@@ -327,7 +330,7 @@ return (
           value={content}
           onEditorChange={(newContent, editor) => {
             setContent(newContent);
-            localStorage.setItem("draftContent", JSON.stringify({ content: newContent }));
+            localStorage.setItem("draftContent", newContent);
             if (editor && roomId) {
               socketRef.current.emit("send-content", { roomId, content: newContent });
   

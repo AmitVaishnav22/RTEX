@@ -21,7 +21,7 @@ const CollabButton = ({ onCreateRoom, onJoinRoom }) => {
 
       {/* Modal for Room Creation and Joining */}
       {isCollabOpen && (
-        <div className="absolute top-12 left-0 bg-white p-4 shadow-lg rounded-lg w-80 z-10">
+        <div className="absolute top-16 right-0 bg-white p-4 shadow-lg rounded-lg w-80 z-10">
           <h2 className="text-xl font-bold mb-4">Collaboration</h2>
           
           <button

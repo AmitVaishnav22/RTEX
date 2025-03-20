@@ -13,7 +13,7 @@ export const setupWebSocket = (roomId, setUsersInRoom, setContent, userName) => 
     socket.emit("join-room", { roomId, username: userName });
   
     socket.on("room-data", ({ users }) => {
-      console.log("Updated users in room:", users);
+      //console.log("Updated users in room:", users);
       setUsersInRoom(users);
       const activeUsernames = users.map((user) => user.username);
       document.querySelectorAll("[id^='cursor-']").forEach((cursorLabel) => {
@@ -64,7 +64,7 @@ export const setupWebSocket = (roomId, setUsersInRoom, setContent, userName) => 
       }
       
       cursorLabel.style.left = `${cursorPosition.left+140}px`;
-      cursorLabel.style.top = `${cursorPosition.top +290}px`; 
+      cursorLabel.style.top = `${cursorPosition.top +250}px`; 
     });
     
 
