@@ -3,7 +3,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 const initialState = {
   user: null,
-  firebaseToken: null,  // ✅ Store Firebase token
+  firebaseToken: null, 
   loading: true,
 };
 
@@ -15,7 +15,7 @@ const authSlice = createSlice({
       state.user = action.payload;
     },
     setFirebaseToken: (state, action) => {
-      state.firebaseToken = action.payload; // ✅ Store the refreshed token
+      state.firebaseToken = action.payload; 
     },
     logoutUser: (state) => {
       state.user = null;

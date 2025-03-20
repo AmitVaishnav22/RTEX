@@ -16,7 +16,7 @@ export const setupWebSocket = (server) => {
 
     socket.on("join-room", ({ roomId, username }) => {
       if(!roomId || !username) {
-        console.error("No roomId provided for WebSocket connection",roomId);
+        //console.error("No roomId provided for WebSocket connection",roomId);
         return;
       }
 
@@ -33,7 +33,7 @@ export const setupWebSocket = (server) => {
 
       socket.join(roomId);
 
-      console.log(`${username} joined room ${roomId}`);
+      //console.log(`${username} joined room ${roomId}`);
 
       rooms[roomId].users.push({ id: socket.id, username });
 
@@ -58,7 +58,7 @@ export const setupWebSocket = (server) => {
     
     
     socket.on("disconnect", () => {
-      console.log(`User disconnected: ${socket.id}`);
+      //console.log(`User disconnected: ${socket.id}`);
 
       for (const roomId in rooms) {
 

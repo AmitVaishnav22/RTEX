@@ -16,7 +16,7 @@ const aiContent = async (req, res) => {
     const response = await axios.post(
       apiUrl,
       {
-        contents: [{ parts: [{ text: text + " Complete this sentence only single suggestion:" }] }],
+        contents: [{ parts: [{ text: text + " (dont rewrite the prompt ) Complete this sentence only single suggestion of atleast 5 words:" }] }],
       },
       {
         params: { key: apiKey },
