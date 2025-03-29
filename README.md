@@ -36,6 +36,10 @@ For detailed usage instructions, refer to the [documentation](#).
 ## Demo Video
 Watch the demo video to see RTEX in action
 Replace `path/to/your/video.mp4` with the relative or absolute path to your video file.
+<video width="640" height="360" controls>
+  <source src="C:\Users\acer\Downloads\baby\RTEX\Recording 2025-03-21 004634.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
 
 ## Contributing
 We welcome contributions! Please follow these steps:
