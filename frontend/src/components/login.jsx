@@ -59,7 +59,7 @@ const LoginButton = () => {
       //console.log("Google OAuth Token Retrieved:", googleAccessToken);
       //console.log("Sending tokens to backend...");
 
-      const response = await axios.post("/api/auth/google/callback", {
+      const response = await axios.post("https://rtex-1.onrender.com/auth/google/callback", {
         googleAccessToken
       }, {
         headers: { Authorization: `Bearer ${firebaseToken}` },
