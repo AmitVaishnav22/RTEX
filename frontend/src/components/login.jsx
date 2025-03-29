@@ -43,7 +43,7 @@ const LoginButton = () => {
       console.log("User data dispatched to Redux:", user);
 
       const firebaseToken = await user.getIdToken();
-      console.log("Firebase Token Retrieved:", firebaseToken);
+      // console.log("Firebase Token Retrieved:", firebaseToken);
       const credential = GoogleAuthProvider.credentialFromResult(result);
       if (!credential) {
         console.error("No Google credentials received!");
@@ -59,7 +59,7 @@ const LoginButton = () => {
       //console.log("Google OAuth Token Retrieved:", googleAccessToken);
       //console.log("Sending tokens to backend...");
 
-      const response = await axios.post("http://localhost:7000/auth/google/callback", {
+      const response = await axios.post("/api/auth/google/callback", {
         googleAccessToken
       }, {
         headers: { Authorization: `Bearer ${firebaseToken}` },

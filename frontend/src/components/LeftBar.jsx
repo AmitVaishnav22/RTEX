@@ -23,7 +23,7 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters}) => {
   
       const firebaseToken = await user.getIdToken();
   
-      await axios.delete(`http://localhost:7000/letter/delete/${letterId}`, {
+      await axios.delete(`/api/letter/delete/${letterId}`, {
         headers: { Authorization: `Bearer ${firebaseToken}` },
       });
   
