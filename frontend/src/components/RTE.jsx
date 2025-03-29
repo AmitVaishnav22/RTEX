@@ -69,7 +69,7 @@ const LetterEditor = () => {
         return;
       }
       const firebaseToken = await authUser.getIdToken();
-      const response = await axios.get("/api/letter", {
+      const response = await axios.get("https://rtex-1.onrender.com/letter", {
         headers: { Authorization: `Bearer ${firebaseToken}` },
       });
       setLetters(response.data);
@@ -108,8 +108,8 @@ const LetterEditor = () => {
 
       const firebaseToken = await authUser.getIdToken();
       const url = letterId
-        ? `/api/letter/update/${letterId}` 
-        : "/api/letter/save"; 
+        ? `https://rtex-1.onrender.com/letter/update/${letterId}` 
+        : "https://rtex-1.onrender.com/letter/save"; 
 
       const method = letterId ? "PUT" : "POST"; 
 
@@ -141,7 +141,7 @@ const LetterEditor = () => {
       const firebaseToken = await authUser.getIdToken();
       console.log("Firebase Token Retrieved:", firebaseToken);
       await axios.post(
-        "/api/letter/upload",
+        "https://rtex-1.onrender.com/letter/upload",
         { title, content },
         {
           headers: {
@@ -188,7 +188,7 @@ const LetterEditor = () => {
   const handleGenerateAI = async () => {
     setIsGenerating(true);
     try {
-      const response = await axios.post("/api/ai/generate", { text: content });
+      const response = await axios.post("https://rtex-1.onrender.com/ai/generate", { text: content });
       const aiSuggestion = response.data.suggestion.trim();
       console.log(aiSuggestion)
       setContent((prevContent) => prevContent.trim()+" "+aiSuggestion);

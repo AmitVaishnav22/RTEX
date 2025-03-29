@@ -23,7 +23,7 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters}) => {
   
       const firebaseToken = await user.getIdToken();
   
-      await axios.delete(`/api/letter/delete/${letterId}`, {
+      await axios.delete(`https://rtex-1.onrender.com/letter/delete/${letterId}`, {
         headers: { Authorization: `Bearer ${firebaseToken}` },
       });
   
