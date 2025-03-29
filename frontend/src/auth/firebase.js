@@ -39,7 +39,7 @@ const logOut = async () => {
   }
 };
 
-// ✅ Utility function to wait for Firebase Auth to restore the user
+// Utility function to wait for Firebase Auth to restore the user
 const getAuthenticatedUser = () => {
   return new Promise((resolve) => {
     const auth = getAuth();
