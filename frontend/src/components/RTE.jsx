@@ -146,7 +146,7 @@ const LetterEditor = () => {
       }
 
       const firebaseToken = await authUser.getIdToken();
-      console.log("Firebase Token Retrieved:", firebaseToken);
+     // console.log("Firebase Token Retrieved:", firebaseToken);
       await axios.post(
         "https://rtex-1.onrender.com/letter/upload",
         { title, content },
