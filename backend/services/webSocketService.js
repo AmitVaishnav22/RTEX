@@ -20,12 +20,13 @@ export const setupWebSocket = (server) => {
         return;
       }
 
-      console.log(`${username} joining room ${roomId}`);
-
-      if (!rooms[roomId]) {
-        rooms[roomId] = { users: [] };
+      //console.log(`${username} joining room ${roomId}`);
+      //console.log("Rooms:", rooms);
+      if (!rooms[roomId] || !Array.isArray(rooms[roomId])) {
+        socket.emit("room-not-found", { message: "Room does not exist." });
+        return;
       }
-
+    
       if (rooms[roomId].users.length >= 2) {
         socket.emit("room-full", { message: "Room is already full." });
         return;
@@ -44,13 +45,13 @@ export const setupWebSocket = (server) => {
 
     socket.on("send-content", ({ roomId, content }) => {
 
-      console.log(`Content update in room ${roomId}:`, content);
+      //console.log(`Content update in room ${roomId}:`, content);
 
       socket.to(roomId).emit("receive-content", content);
     });
 
     socket.on("send-cursor", ({ roomId, username, cursorPosition }) => {
-      console.log(`${username} is moving cursor in room ${roomId} and ${cursorPosition.left}`);
+      //console.log(`${username} is moving cursor in room ${roomId} and ${cursorPosition.left}`);
     
       socket.to(roomId).emit("receive-cursor", { username, cursorPosition });
     });

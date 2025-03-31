@@ -61,7 +61,7 @@ const LetterEditor = () => {
   }, [roomId]);
   
 
-  console.log("Current User:", user);
+  //console.log("Current User:", user);
   const fetchLetters = async () => {
     try {
       if (!authUser) {
@@ -85,10 +85,11 @@ const LetterEditor = () => {
   // }, [authUser]);
   useEffect(() => {
     const user = authUser || JSON.parse(localStorage.getItem("authUser"));
+    //console.log("User from localStorage:", user);
     if (user) {
       fetchLetters();
     }
-  }, []);
+  }, [authUser]);
 
   useEffect(() => {
     localStorage.setItem("draftTitle", title);

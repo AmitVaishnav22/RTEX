@@ -5,7 +5,7 @@ export const setupWebSocket = (roomId, setUsersInRoom, setContent, userName) => 
       return null;
     }
   
-    const socket = io("https://rtex-1.onrender.com", {
+    const socket = io("https://rtex-1.onrender.co", {
       transports: ["websocket"],
       withCredentials: true,
     });
@@ -27,7 +27,7 @@ export const setupWebSocket = (roomId, setUsersInRoom, setContent, userName) => 
     });
   
     socket.on("receive-content", (content) => {
-      console.log("Received content update:", content);
+     // console.log("Received content update:", content);
       setContent(content);
     });
   
@@ -46,7 +46,7 @@ export const setupWebSocket = (roomId, setUsersInRoom, setContent, userName) => 
     });
 
     socket.on("receive-cursor", ({ username, cursorPosition }) => {
-      console.log(`${username} moved their cursor`, cursorPosition);
+      //console.log(`${username} moved their cursor`, cursorPosition);
       let cursorLabel = document.getElementById(`cursor-${username}`);
     
       if (!cursorLabel) {
