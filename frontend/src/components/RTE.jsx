@@ -78,11 +78,17 @@ const LetterEditor = () => {
     }
   };
 
+  // useEffect(() => {
+  //   if (authUser) {
+  //     fetchLetters();
+  //   }
+  // }, [authUser]);
   useEffect(() => {
-    if (authUser) {
+    const user = authUser || JSON.parse(localStorage.getItem("authUser"));
+    if (user) {
       fetchLetters();
     }
-  }, [authUser]);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("draftTitle", title);

@@ -27,7 +27,7 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters}) => {
         headers: { Authorization: `Bearer ${firebaseToken}` },
       });
   
-      alert("Letter deleted successfully!");
+      alert("Letter deleted successfully!"); 
       fetchLetters(); 
     } catch (error) {
       console.error("Error deleting letter:", error.response?.data || error);
