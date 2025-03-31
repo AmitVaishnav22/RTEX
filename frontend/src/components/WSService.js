@@ -5,7 +5,7 @@ export const setupWebSocket = (roomId, setUsersInRoom, setContent, userName) => 
       return null;
     }
   
-    const socket = io("http://localhost:7000", {
+    const socket = io("https://rtex-1.onrender.com", {
       transports: ["websocket"],
       withCredentials: true,
     });
