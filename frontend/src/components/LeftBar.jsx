@@ -7,7 +7,9 @@ import { getAuthenticatedUser, logOut } from "../auth/firebase.js";
 import { getAuth } from "firebase/auth";
 import { Trash2 } from "lucide-react";
 
-const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters}) => {
+const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loading}) => {
+  console.log("LeftBar component rendered");
+  console.log(loading)
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -69,6 +71,11 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters}) => {
       {/* Saved Letters */}
       <h3 className="text-lg mb-2">Saved Works</h3>
       <div className="flex-grow overflow-auto">
+        {loading ? (
+          <div className="flex justify-center py-6">
+            <div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ):
         <ul>
           {letters.length === 0 ? (
             <p className="text-gray-400 text-sm">No saved works yet.</p>
@@ -90,7 +97,8 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters}) => {
               </li>
             ))
           )}
-        </ul>
+          </ul>
+        }
       </div>
       
       <button

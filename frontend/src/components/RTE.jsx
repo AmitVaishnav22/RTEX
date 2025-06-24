@@ -17,6 +17,7 @@ const LetterEditor = () => {
   const [showUsersList, setShowUsersList]=useState(false);
   const [authUser, setAuthUser] = useState(null);
   const [letterTimestamps,setLetterTimestamps] = useState(null);
+  const [loading, setLoading] = useState(true);
 
 
   const user = useSelector((state) => state.auth.user);
@@ -64,6 +65,7 @@ const LetterEditor = () => {
   //console.log("Current User:", user);
   const fetchLetters = async () => {
     try {
+      setLoading(true);
       if (!authUser) {
         console.error("No authenticated user found.");
         return;
@@ -75,6 +77,8 @@ const LetterEditor = () => {
       setLetters(response.data);
     } catch (error) {
       console.error("Error fetching letters:", error);
+    }finally{
+      setLoading(false);
     }
   };
 
@@ -227,6 +231,7 @@ return (
       }}
       fetchLetters={fetchLetters}
       letters={letters}
+      loading={loading}
     />
 
     <div className="flex-grow flex flex-col">
