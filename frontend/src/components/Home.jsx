@@ -20,37 +20,31 @@ function Home({ handleLogin }) {
     {
       title: "Real-Time Collaboration",
       desc: "Edit documents simultaneously with your team, with live cursor tracking and instant updates.",
-      icon: "👥",
       gradient: "from-purple-500 to-pink-500"
     },
     {
       title: "AI-Powered Assistance",
       desc: "Get intelligent text suggestions, grammar fixes, and content enhancement in real-time.",
-      icon: "🤖",
       gradient: "from-blue-500 to-cyan-500"
     },
     {
       title: "Secure Authentication",
       desc: "Enterprise-grade security with Google OAuth and end-to-end encryption for your data.",
-      icon: "🔒",
       gradient: "from-green-500 to-emerald-500"
     },
     {
       title: "Cloud Integration",
       desc: "Seamlessly sync with Google Drive, Dropbox, and other cloud storage solutions.",
-      icon: "☁️",
       gradient: "from-indigo-500 to-purple-500"
     },
     {
       title: "Smart Interface",
       desc: "Adaptive UI that learns your preferences with customizable themes and layouts.",
-      icon: "✨",
       gradient: "from-orange-500 to-red-500"
     },
     {
-      title: "Workflow Automation",
-      desc: "Connect with Slack, Notion, and 100+ tools to streamline your productivity.",
-      icon: "⚡",
+      title: "Tiny MCE Editor",
+      desc: "A powerful, lightweight editor with rich text formatting, media embedding, and more.",
       gradient: "from-teal-500 to-blue-500"
     },
   ];
@@ -162,7 +156,7 @@ function Home({ handleLogin }) {
               
               {/* Floating AI Assistant */}
               <div className="absolute -bottom-6 -left-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-medium animate-pulse">
-                🤖 AI suggests: "Enhance this paragraph"
+                  AI suggests: "Enhance this paragraph"
               </div>
             </div>
           </div>
@@ -199,9 +193,6 @@ function Home({ handleLogin }) {
                 <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-500`}></div>
                 
                 <div className="relative z-10">
-                  <div className="text-4xl mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                    {feature.icon}
-                  </div>
                   <h3 className="text-xl font-bold mb-3 text-slate-800">{feature.title}</h3>
                   <p className="text-slate-600 leading-relaxed">{feature.desc}</p>
                 </div>
