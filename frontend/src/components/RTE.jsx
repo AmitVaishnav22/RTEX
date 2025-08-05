@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import LeftBar from "./LeftBar";
 import CollabButton from "./collabModal";
 import { setupWebSocket } from "./WSService.js";
+import { generateContent, generateTitle } from "../utils/AiService.js";
 const LetterEditor = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -18,6 +19,7 @@ const LetterEditor = () => {
   const [authUser, setAuthUser] = useState(null);
   const [letterTimestamps,setLetterTimestamps] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isGeneratingTitle,setIsGeneratingTitle] = useState(false);
 
 
   const user = useSelector((state) => state.auth.user);
@@ -196,17 +198,27 @@ const LetterEditor = () => {
     setUsersInRoom([]);
     alert("You have left the room.");
   };
+  const handleGenerateTitle=async()=>{
+    setIsGeneratingTitle(true);
+    try {
+      const response = await generateTitle(content);
+      setTitle(response)
+    } catch (error) {
+      console.log("Error generating AI title:", error);
+    }
+    setIsGeneratingTitle(false)
+  }
   const handleGenerateAI = async () => {
     setIsGenerating(true);
     try {
-      const response = await axios.post("https://rtex-1.onrender.com/ai/generate", { text: content });
-      const aiSuggestion = response.data.suggestion.trim();
-      console.log(aiSuggestion)
-      setContent((prevContent) => prevContent.trim()+" "+aiSuggestion);
+      const response = await generateContent(content);
+      setContent((prevContent) => prevContent.trim()+" "+ response);
     } catch (error) {
       console.error("Error generating AI text:", error);
     }
-    setIsGenerating(false);
+    finally{
+      setIsGenerating(false);
+    }
   };
   const editor= useRef(null);
   const username=user?.displayName;
@@ -236,13 +248,34 @@ return (
 
     <div className="flex-grow flex flex-col">
       <div className="flex items-center justify-between bg-gray-100 p-2 rounded-lg shadow-md">
-        <input
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-300 p-2 rounded-md w-1/4 outline-none transition"
-        />
+        <div className="relative w-1/4">
+          <input
+            type="text"
+            placeholder="Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-300 p-2 pr-10 rounded-md w-full outline-none transition"
+          />
+
+          <button
+            onClick={handleGenerateTitle}
+            disabled={isGeneratingTitle}
+            className="absolute top-1/2 right-2 transform -translate-y-1/2 w-5 h-5 disabled:opacity-50"
+            title="Generate Title"
+          >
+            {isGeneratingTitle ? (
+              <div className="w-4 h-4 border-2 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
+            ) : (
+              <img
+                src="https://digital.kestoneapps.in/Vep-all/Intel-AI-Virtual-Summit/img/02.png"
+                alt="AI"
+                className="w-full h-full object-cover rounded-full hover:ring hover:ring-blue-400"
+              />
+            )}
+          </button>
+        </div>
+        
+
         {letterId && letterTimestamps.createdAt && letterTimestamps.updatedAt && (
               <div className="text-sm text-gray-600">
                 <p>Created: {new Date(letterTimestamps.createdAt).toLocaleString()}</p>

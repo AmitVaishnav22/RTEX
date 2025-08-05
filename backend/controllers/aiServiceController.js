@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const aiContent = async (req, res) => {
-  const { text } = req.body;
+  const { text , prompt} = req.body;
   console.log(text);
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -16,7 +16,7 @@ const aiContent = async (req, res) => {
     const response = await axios.post(
       apiUrl,
       {
-        contents: [{ parts: [{ text: text + " (dont rewrite the prompt ) Complete this sentence only single suggestion of atleast 5 words:" }] }],
+        contents: [{ parts: [{ text: text + prompt }] }],
       },
       {
         params: { key: apiKey },
