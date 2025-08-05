@@ -8,8 +8,8 @@ import { getAuth } from "firebase/auth";
 import { Trash2 } from "lucide-react";
 
 const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loading}) => {
-  console.log("LeftBar component rendered");
-  console.log(loading)
+  //console.log("LeftBar component rendered");
+  //console.log(loading)
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
