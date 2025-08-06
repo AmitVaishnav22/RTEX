@@ -15,6 +15,7 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
   //console.log("User in LeftBar:", user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
   const handleDeleteLetter = async (letterId) => {
     try {
       const auth = getAuth();
@@ -57,10 +58,11 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
           headers: { Authorization: `Bearer ${firebaseToken}` },
         }
       );
+      fetchLetters();
       alert("Letter published successfully!");
-      console.log("Published letter response:", response.data);
+      //console.log("Published letter response:", response.data);
       // Optionally, you can redirect to the published letter page
-      navigate(`/publish/${response.data.publicId}`);
+      navigate(`/${response.data}`);
     } catch (error) {
       console.error("Error publishing letter:", error.response?.data || error);
       alert("Failed to publish workspace.");
