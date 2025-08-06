@@ -76,7 +76,7 @@ const LetterEditor = () => {
       const response = await axios.get("https://rtex-1.onrender.com/letter", {
         headers: { Authorization: `Bearer ${firebaseToken}` },
       });
-      setLetters(response.data);
+      setLetters([...response.data]);
     } catch (error) {
       console.error("Error fetching letters:", error);
     }finally{

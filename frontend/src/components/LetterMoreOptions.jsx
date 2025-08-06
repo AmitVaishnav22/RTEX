@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MoreVertical, Trash2, Link } from 'lucide-react';
+import { MoreVertical, Trash2, Link,Globe } from 'lucide-react';
 
 const BASE_PUBLIC_URL = "https://rtex.vercel.app/public/";
 
@@ -27,7 +27,7 @@ export default function LetterMoreOptions({ letter, onDelete, onPublish }) {
       {showMenu && (
         <div className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none text-sm text-gray-900">
           <div className="py-1">
-            {letter.publicId ? (
+            {letter.publicId!==null ? (
               <button
                 onClick={handleCopyLink}
                 className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2"
@@ -40,9 +40,9 @@ export default function LetterMoreOptions({ letter, onDelete, onPublish }) {
                   onPublish(letter._id);
                   setShowMenu(false);
                 }}
-                className="w-full px-4 py-2 text-left hover:bg-gray-100"
+                className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2"
               >
-                Publish
+                <Globe size={14}/>Publish
               </button>
             )}
             <button

@@ -12,7 +12,7 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
   //console.log("LeftBar component rendered");
   //console.log(loading)
   const user = useSelector((state) => state.auth.user);
-  //console.log("User in LeftBar:", user);
+  console.log("User in LeftBar:", letters);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -58,11 +58,14 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
           headers: { Authorization: `Bearer ${firebaseToken}` },
         }
       );
+      const newTab = window.open(response.data.publicUrl, "_blank");
+      if (!newTab) {
+        alert("Popup blocked! Please allow popups for this site.");
+      } else {
+        newTab.focus();
+      }
+      alert("WorkSpace published successfully!");
       fetchLetters();
-      alert("Letter published successfully!");
-      //console.log("Published letter response:", response.data);
-      // Optionally, you can redirect to the published letter page
-      navigate(`/${response.data}`);
     } catch (error) {
       console.error("Error publishing letter:", error.response?.data || error);
       alert("Failed to publish workspace.");

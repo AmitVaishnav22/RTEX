@@ -105,29 +105,32 @@ const publishLetter = async (req, res) => {
     const letterId = req.params.letterId;
     const userId = req.user.uid;
 
-    const letter = await Letter.findOne({ _id: letterId, userId });
-    //console.log("Letter found:", letter);
-    if (!letter) {
+    const existingLetter = await Letter.findOne({ _id: letterId, userId });
+
+    if (!existingLetter) {
       return res.status(404).json({ error: "Letter not found or unauthorized" });
     }
-
-    if (letter.publicId) {
+    if (existingLetter.publicId) {
       return res.status(400).json({ error: "Letter is already published" });
     }
+
     let publicId;
     let unique = false;
     while (!unique) {
-      publicId = nanoid(10); 
-      const existingLetter = await Letter.findOne({ publicId });
-      if (!existingLetter) {
-        unique = true;
-      }
+      publicId = nanoid(10);
+      const conflict = await Letter.findOne({ publicId });
+      if (!conflict) unique = true;
     }
-    letter.publicId = publicId;
-    await letter.save();
+
+    await Letter.findOneAndUpdate(
+      { _id: letterId, userId },
+      { publicId },
+      { new: true }
+    );
 
     const publicUrl = `https://rtex.vercel.app/public/${publicId}`;
     res.json({ message: "Letter published", publicUrl });
+
 
   } catch (error) {
     console.error("Error publishing letter:", error);
