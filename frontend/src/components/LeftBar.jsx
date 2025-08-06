@@ -50,7 +50,7 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
         return;
       }
       const firebaseToken = await user.getIdToken();
-      //console.log("Firebase token:", firebaseToken);
+      console.log("Firebase token:", firebaseToken);
       const response = await axios.post(
         `https://rtex-1.onrender.com/letter/publish/${letterId}`,
         {},

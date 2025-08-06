@@ -42,7 +42,8 @@ const PublicPageView = () => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white px-4 py-8 flex items-center justify-center">
+    <>
+    <div className="min-h-screen bg-black text-white px-4 py-8 flex flex-col items-center justify-center">
       <div className="max-w-3xl w-full rounded-xl shadow-lg p-6">
         <h1 className="text-3xl font-sharp text-blue-500 text-center mb-6">
           {letter.title}
@@ -53,6 +54,14 @@ const PublicPageView = () => {
         />
       </div>
     </div>
+    <div className="text-center sticky bottom-0 bg-black py-4">
+        <h2 className="text-2xl font-bold text-blue-400 tracking-wider">
+          RTEX WorkSpace
+        </h2>
+        <p className="text-sm text-gray-400">Private Works, Public Access — Powered by RTEX</p>
+      </div>
+    </>
+
   );
 };
 

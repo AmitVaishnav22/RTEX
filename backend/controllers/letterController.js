@@ -106,7 +106,7 @@ const publishLetter = async (req, res) => {
     const userId = req.user.uid;
 
     const existingLetter = await Letter.findOne({ _id: letterId, userId });
-
+    //console.log("Existing letter:", existingLetter);
     if (!existingLetter) {
       return res.status(404).json({ error: "Letter not found or unauthorized" });
     }
@@ -114,20 +114,30 @@ const publishLetter = async (req, res) => {
       return res.status(400).json({ error: "Letter is already published" });
     }
 
-    let publicId;
-    let unique = false;
-    while (!unique) {
-      publicId = nanoid(10);
-      const conflict = await Letter.findOne({ publicId });
-      if (!conflict) unique = true;
+    // Pre-fetch all existing publicIds into a Set for O(1) lookup
+    const existingIds = await Letter.find({ publicId: { $ne: "" } }).distinct("publicId");
+    const idSet = new Set(existingIds);
+
+    let publicId = null;
+    const MAX_TRIES = 10;
+    
+    for (let i = 0; i < MAX_TRIES; i++) {
+      const tempId = nanoid(10);
+      if (!idSet.has(tempId)) {
+        publicId = tempId;
+        break;
+      }
     }
 
-    await Letter.findOneAndUpdate(
-      { _id: letterId, userId },
-      { publicId },
-      { new: true }
-    );
+    if (!publicId) {
+      return res.status(500).json({ error: "Failed to generate unique ID. Try again." });
+    }
 
+    existingLetter.publicId = publicId;
+    await existingLetter.save();
+
+    await delCache(`letters:${req.user.uid}`);
+    //console.log(newLetter)
     const publicUrl = `https://rtex.vercel.app/public/${publicId}`;
     res.json({ message: "Letter published", publicUrl });
 
