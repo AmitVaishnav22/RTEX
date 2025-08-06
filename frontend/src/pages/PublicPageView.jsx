@@ -11,7 +11,7 @@ const PublicPageView = () => {
   useEffect(() => {
     const fetchLetter = async () => {
       try {
-        const res = await axios.get(`https://rtex-1.onrender.com/letter/publish/${publicId}`);
+        const res = await axios.get(`https://rtex-1.onrender.com/letter/public/${publicId}`);
         setLetter(res.data);
         document.title = res.data.title || "Public Post";
       } catch (err) {
