@@ -6,11 +6,13 @@ import { logoutUser } from "../store/authslice.js";
 import { getAuthenticatedUser, logOut } from "../auth/firebase.js";
 import { getAuth } from "firebase/auth";
 import { Trash2 } from "lucide-react";
+import LetterMoreOptions from "./LetterMoreOptions.jsx";
 
 const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loading}) => {
   //console.log("LeftBar component rendered");
   //console.log(loading)
   const user = useSelector((state) => state.auth.user);
+  //console.log("User in LeftBar:", user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleDeleteLetter = async (letterId) => {
@@ -33,9 +35,37 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
       fetchLetters(); 
     } catch (error) {
       console.error("Error deleting letter:", error.response?.data || error);
-      alert("Failed to delete letter.");
+      alert("Failed to delete workspace.");
     }
   };
+
+  const handlePublishLetter = async (letterId) => {
+    try {
+      const auth = getAuth();
+      const user = await getAuthenticatedUser();
+      //console.log("User in handlePublishLetter:", user);
+      if (!user) {
+        alert("User not authenticated.");
+        return;
+      }
+      const firebaseToken = await user.getIdToken();
+      //console.log("Firebase token:", firebaseToken);
+      const response = await axios.post(
+        `https://rtex-1.onrender.com/letter/publish/${letterId}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${firebaseToken}` },
+        }
+      );
+      alert("Letter published successfully!");
+      console.log("Published letter response:", response.data);
+      // Optionally, you can redirect to the published letter page
+      navigate(`/publish/${response.data.publicId}`);
+    } catch (error) {
+      console.error("Error publishing letter:", error.response?.data || error);
+      alert("Failed to publish workspace.");
+    }
+  }
   
 
   const handleLogout = async () => {
@@ -88,12 +118,11 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
                 <span onClick={() => onSelectLetter(letter)} className="flex-grow">
                   {letter.title}
                 </span>
-                <button
-                  onClick={() => handleDeleteLetter(letter._id)}
-                  className="bg-grey-600 hover:bg-red-700 text-white p-1 rounded-full"
-                >
-                  <Trash2 size={16} strokeWidth={2} className="text-white" />
-                </button>
+                <LetterMoreOptions
+                    letter={letter}
+                    onDelete={handleDeleteLetter}
+                    onPublish={handlePublishLetter}
+                  />
               </li>
             ))
           )}

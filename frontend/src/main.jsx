@@ -7,6 +7,7 @@ import './index.css'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import LoginButton from './components/login.jsx';
 import LetterEditor from './components/RTE.jsx';
+import PublicPageView from './pages/PublicPageView.jsx';
 import App from './App.jsx'
 
 const router = createBrowserRouter([
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
       {
         path: '/editor',
         element: <LetterEditor />
+      },
+      {
+        path:"/public/:publicId",
+        element: <PublicPageView/>
       }
     ]
   }

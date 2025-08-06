@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";  // ✅ Added useEffect import
 import { Outlet } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import "./App.css";

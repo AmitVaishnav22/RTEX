@@ -4,6 +4,10 @@ const LetterSchema = new Schema({
     userId: String,
     title: String,
     content: String,
+    publicId: {
+      type: String,
+      default: "",
+},
   },{timestamps:true});
 
 const Letter = mongoose.model("Letter", LetterSchema);

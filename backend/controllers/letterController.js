@@ -1,5 +1,6 @@
 import Letter from "../models/letters.model.js";
 import admin from "../db/firebase.js";
+import { nanoid } from "nanoid";
 import { google } from "googleapis";
 import { getCache,setCache,delCache } from "../services/redisService.js";
 
@@ -26,7 +27,7 @@ const saveLetter = async (req, res) => {
     const { title, content } = req.body;
     const userId = req.user.uid;
 
-    await Letter.create({ userId, title, content });
+    await Letter.create({ userId, title, content, publicId: null });
 
     await delCache(`letters:${userId}`);
 
@@ -99,10 +100,65 @@ const uploadToDrive = async (req, res) => {
       }
 };
 
+const publishLetter = async (req, res) => {
+  try {
+    const letterId = req.params.letterId;
+    const userId = req.user.uid;
+
+    const letter = await Letter.findOne({ _id: letterId, userId });
+    //console.log("Letter found:", letter);
+    if (!letter) {
+      return res.status(404).json({ error: "Letter not found or unauthorized" });
+    }
+
+    if (letter.publicId) {
+      return res.status(400).json({ error: "Letter is already published" });
+    }
+    let publicId;
+    let unique = false;
+    while (!unique) {
+      publicId = nanoid(10); 
+      const existingLetter = await Letter.findOne({ publicId });
+      if (!existingLetter) {
+        unique = true;
+      }
+    }
+    letter.publicId = publicId;
+    await letter.save();
+
+    const publicUrl = `https://rtex.vercel.app/public/${publicId}`;
+    res.json({ message: "Letter published", publicUrl });
+
+  } catch (error) {
+    console.error("Error publishing letter:", error);
+    res.status(500).json({ error: "Failed to publish letter" });
+  }
+};
+
+
+
+const getLetterByPublicId = async (req, res) => {
+  try {
+    const publicId = req.params.publicId;
+    //console.log("Fetching letter by public ID:", publicId);
+    const letter = await Letter.findOne({ publicId });
+    if (!letter) {
+      return res.status(404).json({ error: "Letter not found" });
+    }
+    //console.log("Letter found by public ID:", letter)
+    res.json(letter);
+  } catch (error) {
+    console.error("Error fetching letter by public ID:", error);
+    res.status(500).json({ error: "Failed to fetch letter." });
+  }
+}
+
 export {
     getLetters,
     saveLetter,
     updateLetter,
     deleteLetter,
     uploadToDrive,
+    getLetterByPublicId,
+    publishLetter
 }
