@@ -11,7 +11,7 @@ const PublicPageView = () => {
   useEffect(() => {
     const fetchLetter = async () => {
       try {
-        const res = await axios.get(`https://rtex-1.onrender.com/letter/public/${publicId}`);
+        const res = await axios.get(`http://localhost:7000/letter/public/${publicId}`);
         setLetter(res.data);
         document.title = res.data.title || "Public Post";
       } catch (err) {
@@ -49,7 +49,7 @@ const PublicPageView = () => {
           {letter.title}
         </h1>
         <div
-          className="prose prose-invert prose-lg max-w-none"
+          className="prose prose-invert prose-lg max-w-none whitespace-pre-wrap text-left"
           dangerouslySetInnerHTML={{ __html: letter.content }}
         />
       </div>
