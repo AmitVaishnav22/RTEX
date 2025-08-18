@@ -1,6 +1,6 @@
 import express from "express";
 import verifyFirebaseToken from "../middleware/auth.middleware.js";
-import { getLetters, saveLetter, updateLetter, deleteLetter, uploadToDrive ,getLetterByPublicId,publishLetter} from "../controllers/letterController.js";
+import { getLetters, saveLetter, updateLetter, deleteLetter, uploadToDrive ,getLetterByPublicId,publishLetter, toggleVisibility} from "../controllers/letterController.js";
 
 const router = express.Router();
 
@@ -11,5 +11,5 @@ router.delete("/delete/:id", verifyFirebaseToken, deleteLetter);
 router.post("/upload", verifyFirebaseToken, uploadToDrive);
 router.get("/public/:publicId",getLetterByPublicId);
 router.post("/publish/:letterId", verifyFirebaseToken, publishLetter);
-
+router.put("/toggle-visibility/:id", verifyFirebaseToken, toggleVisibility);
 export default router;

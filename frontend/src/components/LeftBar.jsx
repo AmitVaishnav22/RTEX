@@ -80,6 +80,32 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
     //console.log("User logged out, Redux cleared.");
   };
 
+  const onToggleVisibility = async (letterId) => {
+    try {
+      const auth = getAuth();
+      const user = await getAuthenticatedUser();
+      if (!user) {
+        alert("User not authenticated.");
+        return;
+      }
+      console.log(letterId);
+      const firebaseToken = await user.getIdToken();
+      console.log("Firebase token:", firebaseToken);
+      const response = await axios.put(
+        `https://rtex-1.onrender.com/letter/toggle-visibility/${letterId}`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${firebaseToken}` },
+        }
+      );
+      alert(response.data.message);
+      // fetchLetters();
+    } catch (error) {
+      console.error("Error toggling visibility:", error.response?.data || error);
+      alert("Failed to toggle visibility.");
+    }
+  }
+
   return (
     <>
      <div className="w-64 bg-gray-800 text-white p-4 min-h-screen flex flex-col">
@@ -127,6 +153,7 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
                     letter={letter}
                     onDelete={handleDeleteLetter}
                     onPublish={handlePublishLetter}
+                    onToggleVisibility={onToggleVisibility}
                   />
               </li>
             ))

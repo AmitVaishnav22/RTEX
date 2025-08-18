@@ -48,6 +48,9 @@ const updateLetter = async (req, res) => {
       return res.status(404).json({ error: "Letter not found" });
     }
     await delCache(`letters:${req.user.uid}`);
+    if (updatedLetter.publicId) {
+      await delCache(`publicLetter:${updatedLetter.publicId}`);
+    }
 
     res.json({ message: "Letter updated successfully", updatedLetter });
   } catch (error) {
@@ -154,16 +157,57 @@ const getLetterByPublicId = async (req, res) => {
   try {
     const publicId = req.params.publicId;
     //console.log("Fetching letter by public ID:", publicId);
+    if (!publicId) {
+      return res.status(400).json({ error: "Public ID is required" });
+    }
+    const cacheKey = `publicLetter:${publicId}`;
+    const cachedData = await getCache(cacheKey);
+    if (cachedData) {
+      console.log("Cache hit for public letter:");
+      return res.json(JSON.parse(cachedData));
+    }
+
     const letter = await Letter.findOne({ publicId });
     if (!letter) {
       return res.status(404).json({ error: "Letter not found" });
     }
+    if (!letter.isPublic) {
+      return res.status(403).json({ error: "This letter is not public" });
+    }
+
+    await setCache(cacheKey,JSON.stringify(letter),9600);
     //console.log("Letter found by public ID:", letter)
     res.json(letter);
   } catch (error) {
     console.error("Error fetching letter by public ID:", error);
     res.status(500).json({ error: "Failed to fetch letter." });
   }
+}
+
+const toggleVisibility = async (req, res) => {
+  const id = req.params.id;
+  console.log(req.params);
+  console.log("Toggling visibility for letter ID:", id);
+  try {
+    console.log("Toggling visibility for letter ID:", id);
+    const letter = await Letter.findById(id);
+    if (!letter || !letter.publicId) {
+      return res.status(404).json({ error: "Letter not found" });
+    }
+    console.log("Current visibility:", letter);
+    letter.isPublic = !letter.isPublic;
+    console.log("New visibility:", letter);
+    await letter.save();
+    await delCache(`letters:${req.user.uid}`);
+    return res.json({
+      success: true,
+      message: "Visibility toggled successfully",
+      isPublic: letter.isPublic
+    });
+  } catch (error) {
+    console.error("Error toggling visibility:", error);
+    return res.status(500).json({ error: "Failed to toggle visibility" });
+  } 
 }
 
 export {
@@ -173,5 +217,6 @@ export {
     deleteLetter,
     uploadToDrive,
     getLetterByPublicId,
-    publishLetter
+    publishLetter,
+    toggleVisibility
 }

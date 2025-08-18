@@ -7,7 +7,9 @@ const LetterSchema = new Schema({
     publicId: {
       type: String,
       default: "",
-},
+      unique: true,
+    },
+    isPublic: { type: Boolean, default: false }
   },{timestamps:true});
 
 const Letter = mongoose.model("Letter", LetterSchema);
