@@ -6,15 +6,24 @@ import {
   Globe, 
   Eye, 
   EyeOff,
-  Copy
+  Copy,
+  Lock,
+  FireExtinguisher,
+  PlaneLandingIcon,
+  EyeOffIcon
 } from "lucide-react";
 import { useRef } from "react";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
 
 const BASE_PUBLIC_URL = "https://rtex.vercel.app/public/";
 
-export default function LetterMoreOptions({ letter, onDelete, onPublish, onToggleVisibility }){;
+export default function LetterMoreOptions({ letter, onDelete, onPublish, onToggleVisibility,onSetPasscode }){;
   const [showMenu, setShowMenu] = useState(false);
   const [localVisibility, setLocalVisibility] = useState(letter.isPublic);
+  const [showPasscodeField, setShowPasscodeField] = useState(false);
+  const [passcodeInput, setPasscodeInput] = useState(letter.passcode || "");
   const toggleTimeoutRef = useRef(null);
   const toggleMenu = () => setShowMenu((prev) => !prev);
 
@@ -37,6 +46,16 @@ export default function LetterMoreOptions({ letter, onDelete, onPublish, onToggl
     }, 2500);
   }
 
+  const handleSetPasscode = () => {
+    // if (!passcodeInput.trim()) {
+    //   alert("Please enter a passcode");
+    //   return;
+    // }
+    onSetPasscode(letter._id, passcodeInput);
+    setPasscodeInput("");
+    setShowPasscodeField(false);
+  }
+
   return (
     <div className="relative inline-block text-left">
       <button
@@ -55,12 +74,12 @@ export default function LetterMoreOptions({ letter, onDelete, onPublish, onToggl
     ></div>
 
     {/* Modal Box */}
-    <div className="relative z-50 w-96 rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-10 text-sm text-gray-900">
+    <div className="relative z-50 w-96 rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-10 text-sm text-gray-900" >
       <div className="py-4 px-6">
         {letter.publicId ? (
           <div className="flex flex-col gap-2">
-            <div className="px-2 text-xs text-gray-500">Published Work
-              <span className="text-blue-500 text-xs font-semibold mr-2"> {letter.title}</span>
+            <div className="px-2 text-l text-gray-500">Published Work
+              <span className="text-blue-500 text-l font-semibold mr-2"> {letter.title}</span>
               <span
                   className={`px-2 py-0.5 rounded text-[10px] font-medium ${
                     localVisibility
@@ -98,38 +117,83 @@ export default function LetterMoreOptions({ letter, onDelete, onPublish, onToggl
               )}
             </button>
 
-            {/* Impressions Count
-            <div className="flex items-center justify-between px-4 py-2 text-gray-600 text-sm">
-              <span>Impressions</span>
-              <span className="font-semibold">{letter.impressions || 0}</span>
-            </div> */}
-          </div>
-        ) : (
-          <button
-            onClick={() => {
-              onPublish(letter._id);
-              setShowMenu(false);
-            }}
-            className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2"
-          >
-            <Globe size={14} /> Publish
-          </button>
-        )}
+            {/* Impressions Count */}
+            <div className="flex items-center justify-between px-4 py-2">
+              {/* Left side: Icon + Label */}
+              <div className="flex items-center gap-2">
+                <FireExtinguisher size={16} />
+                <span>Impressions</span>
+              </div>
 
-        {/* Delete option */}
-        <button
-          onClick={() => {
-            onDelete(letter._id);
-            setShowMenu(false);
-          }}
-          className="w-full px-4 py-2 text-left text-red-600 hover:bg-gray-100 flex items-center gap-2 mt-2"
-        >
-          <Trash2 size={14} /> Delete
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+              {/* Right side: Value */}
+              <span className="font-semibold text-gray-800">{letter.impressions || 0}</span>
+            </div>
+            {/* Last Visited */}
+            <div className="flex items-center justify-between px-4 py-2">
+              <div className="flex items-center gap-2">
+                <PlaneLandingIcon size={16} />
+                <span>Last Visited Globally</span>
+              </div>
+                  {letter.lastVisited ? (
+                    <p className="text-sm text-gray-500">
+                    {dayjs(letter.lastViewed).fromNow()}
+                    </p>
+                  ):(<span className="font-semibold">not recorded</span>)}
+            </div>
+
+            {/* Set passcode */}
+            {showPasscodeField ? (
+                <div className="flex flex-col gap-2 mt-2 ">
+                  <input
+                    type="text"
+                    placeholder="Enter passcode"
+                    className="border rounded px-2 py-1 text-sm"
+                    value={passcodeInput}
+                    onChange={(e) => setPasscodeInput(e.target.value)}
+                  />
+                  
+                  <button
+                    onClick={handleSetPasscode}
+                    className="bg-blue-500 text-white text-sm px-3 py-1 rounded"
+                    >
+                    Save Passcode
+                    </button>
+                  </div>
+                  ) : (
+                    <button
+                      onClick={() => setShowPasscodeField(true)}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2"
+                    >
+                      <Lock size={14} /> {letter.passcode ? "Change Passcode" : "Set Passcode"}
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    onPublish(letter._id);
+                    setShowMenu(false);
+                  }}
+                  className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-2"
+                >
+                  <Globe size={14} /> Publish
+                </button>
+              )}
+
+              {/* Delete option */}
+              <button
+                onClick={() => {
+                  onDelete(letter._id);
+                  setShowMenu(false);
+                }}
+                className="w-full px-4 py-2 text-left text-red-600 hover:bg-gray-100 flex items-center gap-2 mt-2"
+              >
+                <Trash2 size={14} /> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

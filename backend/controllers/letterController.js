@@ -156,27 +156,44 @@ const publishLetter = async (req, res) => {
 const getLetterByPublicId = async (req, res) => {
   try {
     const publicId = req.params.publicId;
+    const { passcode } = req.query;
     //console.log("Fetching letter by public ID:", publicId);
     if (!publicId) {
       return res.status(400).json({ error: "Public ID is required" });
     }
-    const cacheKey = `publicLetter:${publicId}`;
+    const cacheKey = passcode
+      ? `publicLetter:${publicId}:locked:${passcode}`
+      : `publicLetter:${publicId}:unlocked`;
+
     const cachedData = await getCache(cacheKey);
     if (cachedData) {
-      console.log("Cache hit for public letter:");
+      //console.log("Cache hit for:", cacheKey);
       return res.json(JSON.parse(cachedData));
     }
 
     const letter = await Letter.findOne({ publicId });
+    //console.log("Letter found by public ID:", letter);
     if (!letter) {
       return res.status(404).json({ error: "Letter not found" });
     }
     if (!letter.isPublic) {
       return res.status(403).json({ error: "This letter is not public" });
     }
-
+    if (letter.passcode) {
+      if (!passcode) {
+        return res.status(401).json({ error: "Passcode required" });
+      }
+      if (letter.passcode !== passcode) {
+        return res.status(405).json({ error: "Incorrect passcode" });
+      }
+    }
+    letter.impressions = (letter.impressions || 0) + 1;
+    console.log(letter.lastVisited);
+    letter.lastVisited = new Date();
+    console.log("Last visited updated to:", letter.lastVisited); 
+    await letter.save();
     await setCache(cacheKey,JSON.stringify(letter),9600);
-    //console.log("Letter found by public ID:", letter)
+    await delCache(`letters:${letter.userId}`);
     res.json(letter);
   } catch (error) {
     console.error("Error fetching letter by public ID:", error);
@@ -189,25 +206,72 @@ const toggleVisibility = async (req, res) => {
   console.log(req.params);
   console.log("Toggling visibility for letter ID:", id);
   try {
-    console.log("Toggling visibility for letter ID:", id);
+    //console.log("Toggling visibility for letter ID:", id);
     const letter = await Letter.findById(id);
     if (!letter || !letter.publicId) {
       return res.status(404).json({ error: "Letter not found" });
     }
-    console.log("Current visibility:", letter);
+
+
+    //console.log("Current visibility:", letter);
+    //console.log("New visibility:", letter);
+    //const a=await getCache(`publicLetter:${letter.publicId}`);
+    //console.log("Cache before deletion:", a);
+    // const b=await getCache(`publicLetter:${letter.publicId}`);
+    // console.log("Cache after deletion:", b);
+
     letter.isPublic = !letter.isPublic;
-    console.log("New visibility:", letter);
     await letter.save();
+
     await delCache(`letters:${req.user.uid}`);
+    
+    if (letter.publicId) {
+      const lockedKey = `publicLetter:${letter.publicId}:locked:${passcode}`;
+      const unlockedKey = `publicLetter:${letter.publicId}:unlocked`;
+
+      await delCache(lockedKey);
+      await delCache(unlockedKey);
+    }
+  
     return res.json({
       success: true,
       message: "Visibility toggled successfully",
-      isPublic: letter.isPublic
+      isPublic: letter.isPublic,
+      letter
     });
   } catch (error) {
     console.error("Error toggling visibility:", error);
     return res.status(500).json({ error: "Failed to toggle visibility" });
   } 
+}
+const onSetPasscode = async (req, res) => {
+  const letterId = req.params.id;
+  const { passcode } = req.body;
+
+  try {
+    const letter = await Letter.findById(letterId);
+    if (!letter) {
+      return res.status(404).json({ error: "Letter not found" });
+    }
+
+    letter.passcode = passcode;
+    await letter.save();
+
+    await delCache(`letters:${req.user.uid}`);
+    if (letter.publicId) {
+      // clear both locked + unlocked variants for safety
+      const lockedKey = `publicLetter:${letter.publicId}:locked:${passcode}`;
+      const unlockedKey = `publicLetter:${letter.publicId}:unlocked`;
+
+      await delCache(lockedKey);
+      await delCache(unlockedKey);
+    }
+
+    res.json({ message: "Passcode set successfully" });
+  } catch (error) {
+    console.error("Error setting passcode:", error);
+    res.status(500).json({ error: "Failed to set passcode" });
+  }
 }
 
 export {
@@ -218,5 +282,6 @@ export {
     uploadToDrive,
     getLetterByPublicId,
     publishLetter,
-    toggleVisibility
+    toggleVisibility,
+    onSetPasscode
 }

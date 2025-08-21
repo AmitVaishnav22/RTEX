@@ -9,7 +9,10 @@ const LetterSchema = new Schema({
       default: "",
       unique: true,
     },
-    isPublic: { type: Boolean, default: false }
+    isPublic: { type: Boolean, default: true },
+    passcode: String,
+    impressions: { type: Number, default: 0 },
+    lastVisited: { type: Date },
   },{timestamps:true});
 
 const Letter = mongoose.model("Letter", LetterSchema);

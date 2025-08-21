@@ -105,6 +105,35 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
       alert("Failed to toggle visibility.");
     }
   }
+  const onSetPasscode = async (letterId, newPasscode) => {
+    try {
+      const auth = getAuth();
+      const user = await getAuthenticatedUser();
+      if (!user) {
+        alert("User not authenticated.");
+        return;
+      }
+
+      console.log("Letter ID:", letterId, "New Passcode:", newPasscode);
+
+      const firebaseToken = await user.getIdToken();
+      console.log("Firebase token:", firebaseToken);
+
+      const response = await axios.put(
+        `http://localhost:7000/letter/set-passcode/${letterId}`,
+        { passcode: newPasscode }, // <-- body with passcode
+        {
+          headers: { Authorization: `Bearer ${firebaseToken}` },
+        }
+      );
+
+      alert(response.data.message);
+      fetchLetters(); // optionally refresh UI
+    } catch (error) {
+      console.error("Error setting passcode:", error.response?.data || error);
+      alert("Failed to set/change passcode.");
+    }
+  };
 
   return (
     <>
@@ -154,6 +183,7 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
                     onDelete={handleDeleteLetter}
                     onPublish={handlePublishLetter}
                     onToggleVisibility={onToggleVisibility}
+                    onSetPasscode={onSetPasscode}
                   />
               </li>
             ))

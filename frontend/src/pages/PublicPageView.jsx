@@ -7,21 +7,37 @@ const PublicPageView = () => {
   const [letter, setLetter] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [passcode, setPasscode] = useState("");
+  const [needPasscode, setNeedPasscode] = useState(false);
 
-  useEffect(() => {
-    const fetchLetter = async () => {
+  
+  const fetchLetter = async (code = "") => {
       try {
-        const res = await axios.get(`https://rtex-1.onrender.com/letter/public/${publicId}`);
+        const res = await axios.get(`http://localhost:7000/letter/public/${publicId}`,
+          { params: code ? { passcode: code } : {} }
+        );
+        console.log("Letter fetched:", res);
         setLetter(res.data);
         document.title = res.data.title || "Public Post";
+        setError("");
+        setNeedPasscode(false);
       } catch (err) {
-        setError("Could not load the letter. It may be deleted or unpublished.");
-        document.title = "Letter Not Found";
+        if (err.response?.status === 401) {
+          setNeedPasscode(true);
+          document.title = "Passcode Required";
+        } else if (err.response?.status === 405) {
+          setError("Incorrect passcode.");
+          document.title = "Access Denied";
+        } else {
+          setError("Could not load the letter. It may be deleted or unpublished.");
+          document.title = "Letter Not Found";
+        }
       } finally {
         setLoading(false);
       }
     };
 
+  useEffect(() => {
     fetchLetter();
   }, [publicId]);
 
@@ -40,7 +56,34 @@ const PublicPageView = () => {
       </div>
     );
   }
+  if (needPasscode) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen bg-black text-white">
+        <p className="mb-4 text-blue-400">This workspace is protected. Enter passcode:</p>
+        <input
+          type="password"
+          value={passcode}
+          onChange={(e) => setPasscode(e.target.value)}
+          className="border rounded px-2 py-1 text-black"
+        />
+        <button
+          onClick={() => fetchLetter(passcode)}
+          className="mt-3 bg-blue-500 hover:bg-blue-600 px-4 py-2 rounded"
+        >
+          Submit
+        </button>
+        {error && <p className="text-red-400 mt-2">{error}</p>}
+      </div>
+    );
+  }
 
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-screen bg-black">
+        <p className="text-red-400 text-lg">{error}</p>
+      </div>
+    );
+  }
   return (
     <>
     <div className="min-h-screen bg-black text-white px-4 py-8 flex flex-col items-center justify-center">
