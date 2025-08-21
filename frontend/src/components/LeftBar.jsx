@@ -114,10 +114,10 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
         return;
       }
 
-      console.log("Letter ID:", letterId, "New Passcode:", newPasscode);
+      //console.log("Letter ID:", letterId, "New Passcode:", newPasscode);
 
       const firebaseToken = await user.getIdToken();
-      console.log("Firebase token:", firebaseToken);
+      //console.log("Firebase token:", firebaseToken);
 
       const response = await axios.put(
         `https://rtex-1.onrender.com/letter/set-passcode/${letterId}`,
