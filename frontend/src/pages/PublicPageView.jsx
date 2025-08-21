@@ -13,7 +13,7 @@ const PublicPageView = () => {
   
   const fetchLetter = async (code = "") => {
       try {
-        const res = await axios.get(`http://localhost:7000/letter/public/${publicId}`,
+        const res = await axios.get(`https://rtex-1.onrender.com/letter/public/${publicId}`,
           { params: code ? { passcode: code } : {} }
         );
         console.log("Letter fetched:", res);

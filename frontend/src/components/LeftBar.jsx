@@ -120,7 +120,7 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
       console.log("Firebase token:", firebaseToken);
 
       const response = await axios.put(
-        `http://localhost:7000/letter/set-passcode/${letterId}`,
+        `https://rtex-1.onrender.com/letter/set-passcode/${letterId}`,
         { passcode: newPasscode }, // <-- body with passcode
         {
           headers: { Authorization: `Bearer ${firebaseToken}` },
