@@ -1,6 +1,6 @@
 import express from "express";
 import verifyFirebaseToken from "../middleware/auth.middleware.js";
-import { getLetters, saveLetter, updateLetter, deleteLetter, uploadToDrive ,getLetterByPublicId,publishLetter, toggleVisibility, onSetPasscode} from "../controllers/letterController.js";
+import { getLetters, saveLetter, updateLetter, deleteLetter, uploadToDrive ,getLetterByPublicId,publishLetter, toggleVisibility, onSetPasscode,setCustomAlias,getAlias} from "../controllers/letterController.js";
 
 const router = express.Router();
 
@@ -13,4 +13,7 @@ router.get("/public/:publicId",getLetterByPublicId);
 router.post("/publish/:letterId", verifyFirebaseToken, publishLetter);
 router.put("/toggle-visibility/:id", verifyFirebaseToken, toggleVisibility);
 router.put("/set-passcode/:id", verifyFirebaseToken, onSetPasscode);
+router.put("/set-alias/:id", verifyFirebaseToken, setCustomAlias);
+router.get("/get-alias/:publicId", getAlias);
+
 export default router;

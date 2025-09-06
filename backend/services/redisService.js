@@ -29,7 +29,11 @@ connectRedis();
 
 const setCache=async (key,val,expiration) => {
     try {
-        await client.setEx(key,expiration,JSON.stringify(val));
+        if (expiration && expiration > 0) {
+            await client.setEx(key, expiration, JSON.stringify(val));
+        } else {
+            await client.set(key, JSON.stringify(val)); 
+    }
     } catch (error) {
         console.log(`Error setting cache ${key}`, error)
     }

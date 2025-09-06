@@ -35,8 +35,8 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
       alert("Letter deleted successfully!"); 
       fetchLetters(); 
     } catch (error) {
-      console.error("Error deleting letter:", error.response?.data || error);
-      alert("Failed to delete workspace.");
+      console.error("Error deleting letter:", error.response?.data.error);
+      alert("Failed to delete workspace,"+error.response?.data.error);
     }
   };
 
@@ -67,8 +67,8 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
       alert("WorkSpace published successfully!");
       fetchLetters();
     } catch (error) {
-      console.error("Error publishing letter:", error.response?.data || error);
-      alert("Failed to publish workspace.");
+      console.error("Error publishing letter:", error.response?.data.error);
+      alert("Failed to publish workspace,"+error.response?.data.error);
     }
   }
   
@@ -101,8 +101,8 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
       alert(response.data.message);
       // fetchLetters();
     } catch (error) {
-      console.error("Error toggling visibility:", error.response?.data || error);
-      alert("Failed to toggle visibility.");
+      console.error("Error toggling visibility:", error.response?.data.error);
+      alert("Failed to toggle visibility,",+error.response?.data.error);
     }
   }
   const onSetPasscode = async (letterId, newPasscode) => {
@@ -121,7 +121,7 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
 
       const response = await axios.put(
         `https://rtex-1.onrender.com/letter/set-passcode/${letterId}`,
-        { passcode: newPasscode }, // <-- body with passcode
+        { passcode: newPasscode }, 
         {
           headers: { Authorization: `Bearer ${firebaseToken}` },
         }
@@ -130,10 +130,61 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
       alert(response.data.message);
       fetchLetters(); // optionally refresh UI
     } catch (error) {
-      console.error("Error setting passcode:", error.response?.data || error);
-      alert("Failed to set/change passcode.");
+      console.error("Error setting passcode:", error.response?.data.error);
+      alert("Failed to set/change passcode,"+error.response?.data.error);
     }
   };
+
+  const onsetAlias = async (letterId, newAlias) => {
+    try {
+      const auth = getAuth();
+      const user = await getAuthenticatedUser();
+      if (!user) {
+        alert("User not authenticated.");
+        return;
+      }
+
+      //console.log("Letter ID:", letterId, "New Alias:", newAlias);
+
+      const firebaseToken = await user.getIdToken();
+      //console.log("Firebase token:", firebaseToken);
+
+      const response = await axios.put(
+        `https://rtex-1.onrender.com/letter/set-alias/${letterId}`,
+        { alias: newAlias }, 
+        {
+          headers: { Authorization: `Bearer ${firebaseToken}` },
+        }
+      );
+      alert(response.data.message);
+    } catch (error) {
+      console.error("Error setting alias:", error.response.data.error);
+      alert("Failed to set/change alias,"+error.response.data.error);
+    }
+  }
+  const getAlias = async (publicId) => {
+    const user = await getAuthenticatedUser();
+      if (!user) {
+        alert("User not authenticated.");
+        return;
+      }
+      //console.log("Letter ID:", letterId, "New Alias:", newAlias);
+      const firebaseToken = await user.getIdToken();
+    try {
+      const response = await axios.get(
+        `https://rtex-1.onrender.com/letter/get-alias/${publicId}`,
+        {
+          headers: { Authorization: `Bearer ${firebaseToken}` },
+        }
+      );
+      console.log("Alias fetched:", response.data.alias);
+      return response.data.alias;
+    } catch (error) {
+      console.error("Error getting alias:", error.error);
+      //alert("Failed to get alias.");
+      return null;
+    }
+  }
 
   return (
     <>
@@ -184,6 +235,8 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
                     onPublish={handlePublishLetter}
                     onToggleVisibility={onToggleVisibility}
                     onSetPasscode={onSetPasscode}
+                    onsetAlias={onsetAlias}
+                    getAlias={getAlias}
                   />
               </li>
             ))

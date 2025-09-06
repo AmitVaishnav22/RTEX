@@ -3,6 +3,7 @@ import admin from "../db/firebase.js";
 import { nanoid } from "nanoid";
 import { google } from "googleapis";
 import { getCache,setCache,delCache } from "../services/redisService.js";
+import { get } from "mongoose";
 
 const getLetters = async (req, res) => {
   try {
@@ -63,6 +64,9 @@ const deleteLetter = async (req, res) => {
   try {
     await Letter.findByIdAndDelete(req.params.id);
     await delCache(`letters:${req.user.uid}`);
+    await delCache(`publicLetter:${req.params.id}`);
+    await delCache(`alias:reverse:${req.params.id}`);
+    await delCache(`alias:${req.params.id}`);
     res.json({ message: "Letter deleted successfully" });
   } catch (error) {
     console.error("Error deleting letter:", error);
@@ -155,12 +159,18 @@ const publishLetter = async (req, res) => {
 
 const getLetterByPublicId = async (req, res) => {
   try {
-    const publicId = req.params.publicId;
+    let publicId = req.params.publicId;  //may be alias or publicId
     const { passcode } = req.query;
-    //console.log("Fetching letter by public ID:", publicId);
+    console.log("Fetching letter by public ID:", publicId);
     if (!publicId) {
       return res.status(400).json({ error: "Public ID is required" });
     }
+    const aliasKey = `alias:${publicId}`;
+    const mappedPublicId = await getCache(aliasKey);
+     if (mappedPublicId) {
+      publicId = mappedPublicId; 
+    }
+
     const cacheKey = passcode
       ? `publicLetter:${publicId}:locked:${passcode}`
       : `publicLetter:${publicId}:unlocked`;
@@ -188,9 +198,11 @@ const getLetterByPublicId = async (req, res) => {
       }
     }
     letter.impressions = (letter.impressions || 0) + 1;
-    console.log(letter.lastVisited);
-    letter.lastVisited = new Date();
-    console.log("Last visited updated to:", letter.lastVisited); 
+    const now = new Date();
+    if (!letter.lastVisited || now - letter.lastVisited > 60 * 60 * 1000) {
+      letter.lastVisited = now;
+    }
+    //console.log("Last visited updated to:", letter.lastVisited); 
     await letter.save();
     await setCache(cacheKey,JSON.stringify(letter),9600);
     await delCache(`letters:${letter.userId}`);
@@ -274,6 +286,58 @@ const onSetPasscode = async (req, res) => {
   }
 }
 
+const setCustomAlias=async(req,res)=>{
+  const letterId  = req.params.id;
+  const { alias } = req.body;
+  //console.log("Requested alias:", alias);
+  const userId = req.user.uid;
+  const cleanAlias = alias.toLowerCase().replace(/[^a-z0-9-]/g, "");
+  if (await getCache(`alias:${cleanAlias}`)) {
+    return res.status(409).json({ error: "Alias already taken" });
+  }
+  if (cleanAlias.length < 3 || cleanAlias.length > 50) {
+    return res.status(400).json({ error: "Alias must be 3-50 characters long" });
+  }
+  try {
+    const letter = await Letter.findOne({ _id: letterId, userId });
+    if (!letter) {
+      return res.status(404).json({ error: "Letter not found or unauthorized" });
+    }
+    //console.log("Letter found:", letter.publicId);
+    if (!letter || !letter.publicId || letter.publicId.trim() === "") {
+      return res.status(400).json({ error: "Cannot change alias of a unpublished letter" });
+    }
+    if (await getCache(`alias:reverse:${letter.publicId}`)) {
+      return res.status(400).json({ error: "Alias already set for this letter" });
+    }
+    await setCache(`alias:${cleanAlias}`, letter.publicId, 0);
+    await setCache(`alias:reverse:${letter.publicId}`, cleanAlias, 0);
+    return res.json({
+      message: "Custom alias set successfully",
+      publicUrl: `https://rtex.vercel.app/public/${cleanAlias}`,
+    });
+  } catch (error) {
+    console.error("Error setting custom alias:", error);
+    res.status(500).json({ error: "Failed to set custom alias" });
+  }
+}
+
+const getAlias = async (req,res) => {
+  const {publicId} = req.params;
+  //console.log(publicId)
+  try {
+    const alias=await getCache(`alias:reverse:${publicId}`)
+    //console.log(alias)
+    if (!alias) {
+      return res.status(404).json({ error: "Alias not found" });
+    }
+    return res.json({ alias });
+  } catch (error) {
+    console.error("Error getting alias:", error);
+    res.status(500).json({ error: "Failed to get alias" });
+  }
+}
+
 export {
     getLetters,
     saveLetter,
@@ -283,5 +347,7 @@ export {
     getLetterByPublicId,
     publishLetter,
     toggleVisibility,
-    onSetPasscode
+    onSetPasscode,
+    setCustomAlias,
+    getAlias
 }
