@@ -17,10 +17,13 @@ app.use(cookieParser())
 import authRouter from "./routes/authRoutes.js"
 import letterRouter from "./routes/letterRoutes.js"
 import aiServiceRouter from "./routes/aiServiceRoutes.js"
+import expoRouter from "./routes/expoServiceRoutes.js"
 
 app.use("/auth",authRouter)
 app.use("/letter",letterRouter)
 app.use("/ai",aiServiceRouter)
+app.use("/expo",expoRouter)
+
 export {
     app
 }

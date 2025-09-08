@@ -3,7 +3,6 @@ import admin from "../db/firebase.js";
 import { nanoid } from "nanoid";
 import { google } from "googleapis";
 import { getCache,setCache,delCache } from "../services/redisService.js";
-import { get } from "mongoose";
 
 const getLetters = async (req, res) => {
   try {
@@ -31,6 +30,7 @@ const saveLetter = async (req, res) => {
     await Letter.create({ userId, title, content, publicId: null });
 
     await delCache(`letters:${userId}`);
+    await publishNewLetter({ userId, title, content, publicId: null ,impressions:0,isPublic:true});
 
     res.json({ message: "Letter saved!" });
   } catch (error) {
@@ -52,6 +52,7 @@ const updateLetter = async (req, res) => {
     if (updatedLetter.publicId) {
       await delCache(`publicLetter:${updatedLetter.publicId}`);
     }
+    await publishUpdatedLetter(updatedLetter);
 
     res.json({ message: "Letter updated successfully", updatedLetter });
   } catch (error) {
@@ -67,6 +68,7 @@ const deleteLetter = async (req, res) => {
     await delCache(`publicLetter:${req.params.id}`);
     await delCache(`alias:reverse:${req.params.id}`);
     await delCache(`alias:${req.params.id}`);
+    await publishDeletedLetter(req.params.id);
     res.json({ message: "Letter deleted successfully" });
   } catch (error) {
     console.error("Error deleting letter:", error);

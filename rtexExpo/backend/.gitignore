@@ -1,0 +1,11 @@
+./env
+node_modules
+.DS_Store
+npm
+yarn.lock
+.expo
+.vscode
+.idea
+dist
+*.log
+.env
