@@ -1,9 +1,11 @@
 import { Server } from "socket.io";
 
 const rooms = {}; 
+let io;
 
 export const setupWebSocket = (server) => {
-  const io = new Server(server, {
+  if (io) return io;
+  io = new Server(server, {
     cors: {
       origin: "*",
       methods: ["GET", "POST"],
@@ -85,3 +87,5 @@ export const setupWebSocket = (server) => {
 
   return io;
 };
+
+export {io};

@@ -1,31 +1,42 @@
 import { createClient } from "redis";
 
-const client= createClient({
-    username: process.env.REDIS_USERNAME,
-    password: process.env.REDIS_PASSWORD,
-    socket: {
-        host: process.env.REDIS_HOST,
-        port: process.env.REDIS_PORT
-    }
-})
-
-client.on("connect", () => {
-    console.log("Redis client connected")
-})
-client.on("error", (err) => {
-    console.log("Redis client error", err)
-})
-const connectRedis = async () => {
-    try {
-        await client.connect();
-        console.log("Redis connected successfully");
-    } catch (error) {
-        console.error("Failed to connect to Redis:", error);
-    }
+const baseConfig = {
+  username: process.env.REDIS_USERNAME,
+  password: process.env.REDIS_PASSWORD,
+  socket: {
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+  },
 };
 
-// Call the function
+const client = createClient(baseConfig);
+const publisher = createClient(baseConfig);
+const subscriber = createClient(baseConfig);
+
+client.on("connect", () => console.log("Redis client connected"));
+publisher.on("connect", () => console.log("Redis publisher connected"));
+subscriber.on("connect", () => console.log("Redis subscriber connected"));
+
+client.on("error", (err) => console.log("Redis client error", err));
+publisher.on("error", (err) => console.log("Redis publisher error", err));
+subscriber.on("error", (err) => console.log("Redis subscriber error", err));
+
+const connectRedis = async () => {
+  await client.connect();
+  await publisher.connect();
+  await subscriber.connect();
+  console.log("Redis connected successfully (cache + pub/sub)");
+};
+
 connectRedis();
+
+const publishEvent = async (event, data) => {
+  try {
+    await publisher.publish("rtex-events", JSON.stringify({ event, data }));
+  } catch (err) {
+    console.error("Failed to publish event", err);
+  }
+};
 
 const setCache=async (key,val,expiration) => {
     try {
@@ -61,8 +72,10 @@ const delCache=async (key) => {
 }
 
 export {
-    client,
+    connectRedis,
     setCache,
     getCache,
     delCache,
+    publishEvent,
+    subscriber
 }   

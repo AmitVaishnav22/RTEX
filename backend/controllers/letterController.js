@@ -3,6 +3,7 @@ import admin from "../db/firebase.js";
 import { nanoid } from "nanoid";
 import { google } from "googleapis";
 import { getCache,setCache,delCache } from "../services/redisService.js";
+import { publishEvent } from "../services/redisService.js";
 
 const getLetters = async (req, res) => {
   try {
@@ -30,8 +31,12 @@ const saveLetter = async (req, res) => {
     await Letter.create({ userId, title, content, publicId: null });
 
     await delCache(`letters:${userId}`);
-    await publishNewLetter({ userId, title, content, publicId: null ,impressions:0,isPublic:true});
 
+    await publishEvent("letters:update", JSON.stringify({ 
+      action: "save",
+      userId,
+      title,  
+    }));
     res.json({ message: "Letter saved!" });
   } catch (error) {
     console.error("Error saving letter:", error);
@@ -52,8 +57,10 @@ const updateLetter = async (req, res) => {
     if (updatedLetter.publicId) {
       await delCache(`publicLetter:${updatedLetter.publicId}`);
     }
-    await publishUpdatedLetter(updatedLetter);
-
+    await publishEvent("letter:changed", {
+      publicId: updatedLetter.publicId,
+      title: updatedLetter.title,
+    });
     res.json({ message: "Letter updated successfully", updatedLetter });
   } catch (error) {
     console.error("Error updating letter:", error);
@@ -69,6 +76,9 @@ const deleteLetter = async (req, res) => {
     await delCache(`alias:reverse:${req.params.id}`);
     await delCache(`alias:${req.params.id}`);
     await publishDeletedLetter(req.params.id);
+    await publishEvent("letter:deleted", {
+      publicId: req.params.id, // careful! make sure this matches publicId not Mongo _id
+    });
     res.json({ message: "Letter deleted successfully" });
   } catch (error) {
     console.error("Error deleting letter:", error);
@@ -148,6 +158,15 @@ const publishLetter = async (req, res) => {
     await delCache(`letters:${req.user.uid}`);
     //console.log(newLetter)
     const publicUrl = `https://rtex.vercel.app/public/${publicId}`;
+
+    await publishEvent("link:published", {
+      title: existingLetter.title,
+      publicId: existingLetter.publicId,
+      impressions: existingLetter.impressions || 0,
+      isPublic: true,
+      link: `https://rtex.vercel.app/public/${existingLetter.publicId}`,
+    });
+    
     res.json({ message: "Letter published", publicUrl });
 
 
@@ -208,6 +227,10 @@ const getLetterByPublicId = async (req, res) => {
     await letter.save();
     await setCache(cacheKey,JSON.stringify(letter),9600);
     await delCache(`letters:${letter.userId}`);
+    await publishEvent("link:count", {
+      publicId: letter.publicId,
+      impressions: letter.impressions,
+    });
     res.json(letter);
   } catch (error) {
     console.error("Error fetching letter by public ID:", error);
@@ -246,6 +269,11 @@ const toggleVisibility = async (req, res) => {
       await delCache(lockedKey);
       await delCache(unlockedKey);
     }
+
+    await publishEvent("link:visibility", {
+      publicId: letter.publicId,
+      isPublic: letter.isPublic,
+    });
   
     return res.json({
       success: true,
@@ -314,6 +342,11 @@ const setCustomAlias=async(req,res)=>{
     }
     await setCache(`alias:${cleanAlias}`, letter.publicId, 0);
     await setCache(`alias:reverse:${letter.publicId}`, cleanAlias, 0);
+
+    await publishEvent("link:alias", {
+      publicId: letter.publicId,
+      alias: cleanAlias,
+    });
     return res.json({
       message: "Custom alias set successfully",
       publicUrl: `https://rtex.vercel.app/public/${cleanAlias}`,

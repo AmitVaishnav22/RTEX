@@ -1,8 +1,12 @@
-// src/pages/LandingPage.jsx
 import { motion } from "framer-motion";
 import { ArrowRight, Link, Zap, Share2, Layers } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function LandingPage() {
+    const navigate = useNavigate();
+    function handleExploreClick() {
+        navigate('/dashboard');
+    }
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-blue-950 text-white flex flex-col">
       {/* Hero Section */}
@@ -27,7 +31,7 @@ export default function LandingPage() {
           No logins. No barriers. Just visibility, reach, and collaboration.
         </motion.p>
         <motion.a
-          href="/dashboard"
+          onClick={handleExploreClick}
           className="inline-flex items-center gap-2 px-8 py-3 bg-blue-600 rounded-2xl text-lg font-semibold hover:bg-blue-700 transition"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
