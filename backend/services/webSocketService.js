@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 
 const rooms = {}; 
 let io;
+let expoOnlineUsers = 0;
 
 export const setupWebSocket = (server) => {
   if (io) return io;
@@ -15,6 +16,8 @@ export const setupWebSocket = (server) => {
   io.on("connection", (socket) => {
 
     console.log(`New client connected: ${socket.id}`);
+    expoOnlineUsers++;
+    io.emit("users:online", expoOnlineUsers);
 
     socket.on("join-room", ({ roomId, username }) => {
       if(!roomId || !username) {
@@ -62,6 +65,8 @@ export const setupWebSocket = (server) => {
     
     socket.on("disconnect", () => {
       //console.log(`User disconnected: ${socket.id}`);
+      expoOnlineUsers = Math.max(0, expoOnlineUsers - 1);
+      io.emit("users:online", expoOnlineUsers);
 
       for (const roomId in rooms) {
 

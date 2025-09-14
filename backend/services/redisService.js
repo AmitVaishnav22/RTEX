@@ -70,12 +70,23 @@ const delCache=async (key) => {
         console.log(`Error deleting cache ${key}`, error)
     }
 }
+const checkEncryption=async (publicId) => {
+    try {
+      const pattern = `publicLetter:${publicId}:locked:*`;
+      const keys = await client.keys(pattern);
+      return keys.length > 0;
+    } catch (error) {
+      console.log(`Error checking encryption for ${publicId}`, error)
+      return false 
+    }
 
+}
 export {
     connectRedis,
     setCache,
     getCache,
     delCache,
     publishEvent,
-    subscriber
+    subscriber,
+    checkEncryption
 }   

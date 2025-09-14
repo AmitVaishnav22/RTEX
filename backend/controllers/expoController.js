@@ -1,11 +1,15 @@
 import Letter from "../models/letters.model.js";
-import { getCache, setCache } from "../services/redisService.js";
+import { getCache, setCache , checkEncryption} from "../services/redisService.js";
 
 
 const getAliasForLetter = async (publicId) => {
   const alias = await getCache(`alias:reverse:${publicId}`);
   return alias || null;
 };
+
+const getEncryptionForLetter = async (publicId) => {
+  return checkEncryption(publicId);
+}
 
 const getPublicLinks = async (req, res) => {
   try {
@@ -22,9 +26,8 @@ const getPublicLinks = async (req, res) => {
 
     const letters = await Letter.find(
       { publicId: { $ne: null } },
-      { title: 1, publicId: 1, impressions: 1, size: 1, createdAt: 1 }
-    )
-      .sort({ createdAt: -1 })
+      { title: 1, publicId: 1, impressions: 1, size: 1, createdAt: 1, updatedAt: 1, isPublic: 1})
+      .sort({ impressions: -1, createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
@@ -37,15 +40,17 @@ const getPublicLinks = async (req, res) => {
           impressions: letter.impressions || 0,
           publicId: letter.publicId,
           isPublic: letter.isPublic,
+          updatedAt: letter.updatedAt,
           link: alias
             ? `https://rtex.vercel.app/public/${alias}`
             : `https://rtex.vercel.app/public/${letter.publicId}`,
+          encrypted: await getEncryptionForLetter(letter.publicId),
         };
       })
     );
     const total = await Letter.countDocuments({ publicId: { $ne: null } });
     const totalPages = Math.ceil(total / limit);
-
+    console.log("enriched",enriched);
     const response = {
       page,
       perPage: limit,

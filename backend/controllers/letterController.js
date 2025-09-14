@@ -263,12 +263,16 @@ const toggleVisibility = async (req, res) => {
     await delCache(`letters:${req.user.uid}`);
     
     if (letter.publicId) {
-      const lockedKey = `publicLetter:${letter.publicId}:locked:${passcode}`;
+      const lockedKey = `publicLetter:${letter.publicId}:locked}`;
       const unlockedKey = `publicLetter:${letter.publicId}:unlocked`;
-
       await delCache(lockedKey);
       await delCache(unlockedKey);
     }
+
+    await publishEvent("link:visibility", JSON.stringify({ 
+      letterId: letter._id,
+      isPublic: letter.isPublic,
+    }));
 
     await publishEvent("link:visibility", {
       publicId: letter.publicId,
