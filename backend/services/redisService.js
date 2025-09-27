@@ -1,4 +1,5 @@
 import { createClient } from "redis";
+import Letter from "../models/letters.model.js";
 
 const baseConfig = {
   username: process.env.REDIS_USERNAME,
@@ -72,16 +73,15 @@ const delCache=async (key) => {
 }
 const checkEncryption=async (publicId) => {
     try {
-      const pattern = `publicLetter:${publicId}:locked:*`;
-      const keys = await client.keys(pattern);
-      return keys.length > 0;
+      const letter = await Letter.findOne({ publicId });
+      return !!letter?.passcode;
     } catch (error) {
       console.log(`Error checking encryption for ${publicId}`, error)
       return false 
     }
 
 }
-export {
+export { 
     connectRedis,
     setCache,
     getCache,

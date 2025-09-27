@@ -14,18 +14,21 @@ function Dashboard() {
   const [onlineCount, setOnlineCount] = useState(0);
   const [totalExports, setTotalExports] = useState(0);
 
+  //https://rtex-1.onrender.com http://localhost:7000
+
   const fetchLinks = async (pageNum = 1) => {
     try {
       setLoading(true);
       setError("");
       const res = await axios.get(
-      `https://rtex-1.onrender.com/expo/getlinks?page=${pageNum}`,
+      `http://localhost:7000/expo/getlinks?page=${pageNum}`,
       {
         headers: {
-            "x-rtex-key": "abc@1230",
+            "x-rtex-key": import.meta.env.VITE_RTEX_EXPO_KEY,
         },
     }
     );
+      //console.log("Fetched links:", res.data);
       setLinks(res.data.data || []);
       setPage(res.data.page);
       setTotalPages(res.data.totalPages);
@@ -41,7 +44,7 @@ function Dashboard() {
   useEffect(() => {
     // New link published → just add
     socket.on("link:published", (newLink) => {
-      console.log("🔵 new link published", newLink);
+      console.log(" new link published", newLink);
       setLinks((prev) => [newLink, ...prev]);
       setTotalExports((prev) => prev + 1);
     });
