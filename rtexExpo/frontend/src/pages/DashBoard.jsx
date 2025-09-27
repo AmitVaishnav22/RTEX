@@ -21,7 +21,7 @@ function Dashboard() {
       setLoading(true);
       setError("");
       const res = await axios.get(
-      `http://localhost:7000/expo/getlinks?page=${pageNum}`,
+      `ttps://rtex-1.onrender.com/expo/getlinks?page=${pageNum}`,
       {
         headers: {
             "x-rtex-key": import.meta.env.VITE_RTEX_EXPO_KEY,
