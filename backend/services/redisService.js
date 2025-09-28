@@ -79,8 +79,49 @@ const checkEncryption=async (publicId) => {
       console.log(`Error checking encryption for ${publicId}`, error)
       return false 
     }
-
 }
+
+const incimpressionCount=async (publicId,step=1) => {
+  try {
+    const key = `impressions:${publicId}`;
+    await client.incrBy(key,step);
+    return null;
+  } catch (error) {
+    console.log(`Error incrementing count for ${publicId}`, error)
+    return null;
+  }
+}
+
+const getimpressionCount=async (publicId) => {
+  try {
+    const key = `impressions:${publicId}`;
+    const value = await client.get(key);
+    return value ? parseInt(value, 10) : 0;
+  } catch (error) {
+    console.log(`Error getting impression count for ${publicId}`, error)
+    return null;
+  }
+}
+
+const getAllImpressionSync=async () => {
+  try {
+    return await client.keys('impressions:*');
+  } catch (error) {
+    console.log(`Error getting all impression keys`, error)
+    return [];
+  }
+}
+const resetImpressionCount=async (publicId) => {
+  try {
+    const key = `impressions:${publicId}`;
+    await client.del(key);
+    return null;
+  } catch (error) {
+    console.log(`Error resetting impression count for ${publicId}`, error)
+    return null;
+  }
+}
+
 export { 
     connectRedis,
     setCache,
@@ -88,5 +129,9 @@ export {
     delCache,
     publishEvent,
     subscriber,
-    checkEncryption
+    checkEncryption,
+    incimpressionCount,
+    getimpressionCount,
+    getAllImpressionSync,
+    resetImpressionCount
 }   

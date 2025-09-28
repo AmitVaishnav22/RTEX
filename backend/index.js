@@ -6,10 +6,17 @@ import http, { createServer } from "http"
 import {Server} from "socket.io"
 import { setupWebSocket } from "./services/webSocketService.js";
 import { setupExpoWebSocket } from "./services/webSocketExpo.js";
+import { syncImpressions } from "./workers/syncImpressions.js";
+import cron from "node-cron";
 
 dotenv.config({
   path:'./.env'
 })
+
+cron.schedule("*/1 * * * *", async () => { 
+  console.log("Running sync job...");
+  await syncImpressions();
+});
 
 const server=createServer(app)
 connectDB().then(()=>{

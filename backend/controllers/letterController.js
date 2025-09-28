@@ -2,7 +2,7 @@ import Letter from "../models/letters.model.js";
 import admin from "../db/firebase.js";
 import { nanoid } from "nanoid";
 import { google } from "googleapis";
-import { getCache,setCache,delCache } from "../services/redisService.js";
+import { getCache,setCache,delCache, incimpressionCount, getimpressionCount } from "../services/redisService.js";
 import { publishEvent } from "../services/redisService.js";
 
 const getLetters = async (req, res) => {
@@ -191,6 +191,7 @@ const getLetterByPublicId = async (req, res) => {
      if (mappedPublicId) {
       publicId = mappedPublicId; 
     }
+    await incimpressionCount(publicId);
 
     const cacheKey = passcode
       ? `publicLetter:${publicId}:locked:${passcode}`
@@ -199,7 +200,15 @@ const getLetterByPublicId = async (req, res) => {
     const cachedData = await getCache(cacheKey);
     if (cachedData) {
       //console.log("Cache hit for:", cacheKey);
-      return res.json(JSON.parse(cachedData));
+      const letter = JSON.parse(cachedData);
+      const redisCount = await getimpressionCount(publicId);
+      const totalImpressions = (letter.impressions || 0) + redisCount;
+
+      await publishEvent("link:count", {
+        publicId,
+        impressions: totalImpressions,
+      });
+      return res.json(letter);
     }
 
     const letter = await Letter.findOne({ publicId });
@@ -218,7 +227,7 @@ const getLetterByPublicId = async (req, res) => {
         return res.status(405).json({ error: "Incorrect passcode" });
       }
     }
-    letter.impressions = (letter.impressions || 0) + 1;
+    //letter.impressions = (letter.impressions || 0) + 1;
     const now = new Date();
     if (!letter.lastVisited || now - letter.lastVisited > 60 * 60 * 1000) {
       letter.lastVisited = now;
@@ -227,9 +236,11 @@ const getLetterByPublicId = async (req, res) => {
     await letter.save();
     await setCache(cacheKey,JSON.stringify(letter),9600);
     await delCache(`letters:${letter.userId}`);
+    const redisCount = await getimpressionCount(publicId);
+    const totalImpressions = (letter.impressions || 0) + redisCount;
     await publishEvent("link:count", {
       publicId: letter.publicId,
-      impressions: letter.impressions,
+      impressions: totalImpressions
     });
     res.json(letter);
   } catch (error) {

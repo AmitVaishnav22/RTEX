@@ -16,7 +16,7 @@ const PublicPageView = () => {
         const res = await axios.get(`https://rtex-1.onrender.com/letter/public/${publicId}`,
           { params: code ? { passcode: code } : {} }
         );
-        console.log("Letter fetched:", res);
+        //console.log("Letter fetched:", res);
         setLetter(res.data);
         document.title = res.data.title || "Public Post";
         setError("");
