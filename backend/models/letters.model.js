@@ -13,6 +13,9 @@ const LetterSchema = new Schema({
     passcode: String,
     impressions: { type: Number, default: 0 },
     lastVisited: { type: Date },
+    authorName: String,
+    authorPhoto: String,
+    authorEmail: String
   },{timestamps:true});
 
 const Letter = mongoose.model("Letter", LetterSchema);

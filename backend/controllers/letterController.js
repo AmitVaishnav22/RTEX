@@ -152,7 +152,12 @@ const publishLetter = async (req, res) => {
       return res.status(500).json({ error: "Failed to generate unique ID. Try again." });
     }
 
+    //console.log("Generated unique publicId:", req.user.name,req.user.email,req.user.picture);
     existingLetter.publicId = publicId;
+    existingLetter.isPublic = true;
+    existingLetter.authorName = req.user.name || req.user.displayName || "Anonymous";
+    existingLetter.authorPhoto = req.user.picture || "";
+    existingLetter.authorEmail = req.user.email || "";
     await existingLetter.save();
 
     await delCache(`letters:${req.user.uid}`);
