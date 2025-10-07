@@ -34,4 +34,21 @@ const generateContent = async (text) => {
     }
 };
 
-export { generateContent, generateTitle };
+const generateNotes = async (text) => {
+    if (!text || typeof text !== "string") {
+        throw new Error("Invalid input: text must be a non-empty string.");
+    }
+    const prompt = "this is the whole context, generate short notes for it : ";
+    try {
+        const response = await axios.post("https://rtex-1.onrender.com/ai/generate", {
+        text: text + prompt,
+        });
+        const aiSuggestion = response.data.suggestion.trim();
+        return aiSuggestion;
+    } catch (error) {
+        console.error("Error generating AI content:", error);
+        throw error;
+    }
+}
+
+export { generateContent, generateTitle, generateNotes };

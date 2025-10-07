@@ -12,7 +12,7 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
   //console.log("LeftBar component rendered");
   //console.log(loading)
   const user = useSelector((state) => state.auth.user);
-  console.log("User in LeftBar:", letters);
+  //console.log("User in LeftBar:", letters);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -39,6 +39,8 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
       alert("Failed to delete workspace,"+error.response?.data.error);
     }
   };
+
+
 
   const handlePublishLetter = async (letterId) => {
     try {
