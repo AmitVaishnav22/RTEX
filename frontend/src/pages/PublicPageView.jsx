@@ -5,6 +5,7 @@ import Split from "react-split";
 import { SplitSquareHorizontal as SplitIcon, NotepadText , TimerResetIcon, LucideListRestart, ListRestart, ListRestartIcon } from "lucide-react";
 import UserInfo from "./UserInfo.jsx";
 import Notes from "./Notes.jsx";
+import RtexExpoAd from "../components/RTEX-EXPO-AD.jsx";
 
 const PublicPageView = () => {
   const { publicId } = useParams();
@@ -17,8 +18,17 @@ const PublicPageView = () => {
   const [splitMode, setSplitMode] = useState(false);
   const [splitIndex, setSplitIndex] = useState(null);
   const contentRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
     
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
     const getCharIndexFromClick = (e) => {
       if (!contentRef.current) return 0;
 
@@ -114,6 +124,34 @@ const PublicPageView = () => {
       <div className="flex justify-center items-center h-screen bg-black">
         <p className="text-red-400 text-lg">{error}</p>
       </div>
+    );
+  }
+  if (isMobile) {
+    return (
+      <>
+      <div className="min-h-screen w-full bg-black text-white flex flex-col items-center justify-center p-6">
+        <h1 className="text-2xl font-bold text-blue-400 mb-4 text-center">
+          {letter.title}
+        </h1>
+        <p className="mt-6 text-sm text-gray-400 text-center">
+          💡 View this workspace on a <span className="text-blue-400 font-semibold">desktop</span> to access more features.
+        </p>
+        <div
+          className="prose prose-invert max-w-none text-left whitespace-pre-wrap border border-gray-700 rounded-xl p-4 bg-gray-900/30"
+          dangerouslySetInnerHTML={{ __html: letter.content }}
+        />
+        {/* Footer */}
+      </div>
+      <RtexExpoAd />
+      <div className="text-center z-0 sticky bottom-0 bg-black py-2">
+          <h2 className="text-xl font-bold text-blue-400 tracking-wider">
+            RTEX WorkSpace
+          </h2>
+          <p className="text-sm text-gray-400">
+            Private Works, Public Access — Powered by RTEX
+          </p>
+        </div>
+      </>
     );
   }
   return (
@@ -232,6 +270,8 @@ const PublicPageView = () => {
             )}
       </div>
       </div>
+
+    <RtexExpoAd />
 
     {/* Footer */}
     <div className="text-center sticky bottom-0 bg-black py-2">

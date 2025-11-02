@@ -1,54 +1,135 @@
-# RTEX Project
+# RTEX - Real-Time Collaborative Text Editor
 
 ## Overview
-RTEX is a lightweight and efficient tool designed to [insert purpose, e.g., "streamline task automation and enhance workflow efficiency"]. This project aims to [insert goal, e.g., "provide users with a seamless experience for managing complex operations while ensuring scalability and reliability"].
+RTEX is a modern collaborative online text editor that enables real-time document collaboration. It features seamless Google Drive integration, custom workspace management, and secure document sharing capabilities.
 
-## Features
-- **Task Automation**: Automates repetitive tasks with minimal configuration, saving time and reducing errors.
-- **Real-Time Analytics**: Provides real-time insights and analytics to help users make informed decisions.
-- **Cross-Platform Compatibility**: Works seamlessly across multiple platforms, ensuring flexibility and accessibility.
-- **User-Friendly Interface**: Designed with an intuitive interface to make it easy for users of all skill levels.
-- **Customizable Workflows**: Allows users to tailor workflows to their specific needs.
-- **Scalable Architecture**: Built to handle projects of any size, from small tasks to enterprise-level operations.
+## RTEX EXPO
+RTEX EXPO is a campanion of RTEX, build for providing overall dashboard for all the exports published via RTEX exports.
+
+## Key Features
+- **Google Drive Integration**: Seamlessly save and sync documents with Google Drive
+- **Real-time Collaboration**: Work simultaneously with multiple users on the same document
+- **Custom Workspace Export**: Export your workspaces in various formats with customizable options
+- **Custom DNS Service**: Set up your own domain for private instances
+- **Secure Document Sharing**: Protect your exports with passcodes
+- **User-Friendly Interface**: Clean, intuitive interface for efficient document editing
+- **Cross-Platform Compatibility**: Access from any modern web browser
+
+## Architectures
+- Overall current architecture/flow
+![alt text](RTEXOVERALL-ARCH.png)
+- Overall current RTEXEXPO architecture/flow
+![alt text](RTEXEPO-ARCH.png)
+- Scalable View Updation architecture in RTEXEXPO
+![alt text](RTEXEXPO-LIKEUPDATION-ARCH.png)
+- Custom DNS RTEX architecture
+![alt text](RTEX-CUSTOM-DNS-ARCH.png)
+
+### System Components
+- Frontend (React.js)
+- Backend (Node.js)
+- WebSocket Server
+- Database (MONGO-DB)
+- Google Drive API Integration
+- Authentication Service
+- Redis Cache
 
 ## Installation
-To get started with RTEX, follow these steps:
+
+### Prerequisites
+- Node.js (v14 or higher)
+- npm or yarn
+- MongoDB
+
+### Setup
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-repo/RTEX.git
-   ```
-2. Navigate to the project directory:
-   ```bash
-   cd RTEX
-   ```
+```bash
+git clone https://github.com/AmitVaishnav22/RTEX.git
+```
+
+2. Navigate to project directory:
+```bash
+cd RTEX
+```
+
 3. Install dependencies:
-   ```bash
-   [Insert installation command, e.g., npm install or pip install -r requirements.txt]
-   ```
+```bash
+npm install
+```
+
+4. Configure environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
 
 ## Usage
-Run the application using:
-```bash
-[Insert command to run the project, e.g., npm start or python main.py]
-```
-For detailed usage instructions, refer to the [documentation](#).
 
-## Demo Video
-Watch the demo video to see RTEX in action
-Replace `path/to/your/video.mp4` with the relative or absolute path to your video file.
+### Development Mode
+```bash
+npm run dev
+```
+
+### Production Mode
+```bash
+npm run build
+npm start
+```
+
+## Features Demo
+Watch our demo video to see RTEX in action:
+
 <video width="640" height="360" controls>
-  <source src="C:\Users\acer\Downloads\baby\RTEX\Recording 2025-03-21 004634.mp4" type="video/mp4">
+  <source src="./docs/demo/demo.mp4" type="video/mp4">
   Your browser does not support the video tag.
 </video>
 
+<!-- ## API Documentation
+Access our API documentation at `/api/docs` when running the server. -->
+
+## Security
+- End-to-end encryption for document content
+- Secure authentication using JWT
+- Password-protected document sharing
+- Rate limiting and DDoS protection
+
 ## Contributing
 We welcome contributions! Please follow these steps:
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Submit a pull request with a detailed description of your changes.
+
+1. Fork the repository
+2. Create your feature branch:
+```bash
+git checkout -b feature/amazing-feature
+```
+3. Commit your changes:
+```bash
+git commit -m 'Add amazing feature'
+```
+4. Push to the branch:
+```bash
+git push origin feature/amazing-feature
+```
+5. Open a Pull Request
+
+## Project Structure
+```
+RTEX/
+├── frontend/          # Frontend React application
+├── backend/          # Backend Node.js server
+├── rtexExpo/            # RTEXEXPO Frontend dashboard
+├── tests/           # Test suites  # (not present)
+└── docker/          # Docker configuration (not present)
+```
 
 ## License
-This project is licensed under the [Insert License Name] License. See the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Contact
-For questions or support, please contact [Your Name/Team] at [Your Email Address].
+- **Developer**: Amit Vaishnav
+- **GitHub**: [AmitVaishnav22](https://github.com/AmitVaishnav22)
+- **Email**: vaishnanamit@gmial.com
+
+## Acknowledgments
+- Thanks to all contributors
+- Built with React, Node.js, and Socket.io
+- Inspired by modern collaborative editing tools
