@@ -10,11 +10,16 @@ import {
   Lock,
   FireExtinguisher,
   PlaneLandingIcon,
-  ALargeSmall
+  ALargeSmall,
+  StoreIcon,
+  Share2Icon,
+  ScreenShareIcon,
+  LucideMessageSquareShare
 } from "lucide-react";
 import { useRef } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useNavigate } from "react-router-dom";
 dayjs.extend(relativeTime);
 
 const BASE_PUBLIC_URL = "https://rtex.vercel.app/public/";
@@ -29,6 +34,7 @@ export default function LetterMoreOptions({ letter, onDelete, onPublish, onToggl
   const [customDomain, setCustomDomain] = useState("");
   const toggleTimeoutRef = useRef(null);
   const toggleMenu = () => setShowMenu((prev) => !prev);
+  const navigate=useNavigate();
 
   useEffect(() => {
     const fetchAlias = async () => {
@@ -84,6 +90,11 @@ export default function LetterMoreOptions({ letter, onDelete, onPublish, onToggl
     setCustomDomain("");
     setOpenDNS(false);
   }
+  const handleRedirectLink = () => {
+    const publicUrl = `${BASE_PUBLIC_URL}${alias || letter.publicId}`;
+    window.open(publicUrl, "_blank");
+    setShowMenu(false);
+  }
   
 
   return (
@@ -126,12 +137,20 @@ export default function LetterMoreOptions({ letter, onDelete, onPublish, onToggl
               <span className="truncate">
                 {`${BASE_PUBLIC_URL}${alias || letter.publicId}`}
               </span>
-              <button
-                onClick={handleCopyLink}
-                className="p-1 hover:bg-gray-200 rounded"
-              >
-                <Copy size={14} />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleCopyLink}
+                  className="p-1 hover:bg-gray-200 rounded"
+                >
+                  <Copy size={14} />
+                </button>
+                <button
+                  onClick={handleRedirectLink}
+                  className="p-1 hover:bg-gray-200 rounded"
+                >
+                  <LucideMessageSquareShare size={14} />
+                </button>
+              </div>
             </div>
 
             {/* Toggle visibility */}
@@ -186,9 +205,6 @@ export default function LetterMoreOptions({ letter, onDelete, onPublish, onToggl
                 <ALargeSmall size={16} />
                 <span>Custom DNS</span>
               </div>
-
-              {/* Right side: Value */}
-              <span className="font-semibold text-red-800">NEW</span>
             </div>
             {openDNS && (
               <>
@@ -285,8 +301,18 @@ export default function LetterMoreOptions({ letter, onDelete, onPublish, onToggl
                 </button>
               )}
 
-            
-
+              {/* NEW FEATURE */}
+              {/* <div className="flex items-center gap-2 text-purple-600 hover:bg-gray-100">
+                <div
+                  onClick={() => {
+                    navigate(`/${letter._id}/publish-to-chronicle-ai`);
+                  }}
+                  className="w-full px-4 py-2 font-bold text-left  flex items-center gap-2 "
+                >
+                  <StoreIcon size={14} /> Post to ChronicleAI (Coming Soon)
+                </div>
+                <span className="font-semibold text-purple-800">NEW</span>
+              </div> */}
               {/* Delete option */}
               <button
                 onClick={() => {
