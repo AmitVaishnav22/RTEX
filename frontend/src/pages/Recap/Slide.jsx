@@ -2,7 +2,7 @@ const Slide = ({ slide, recap }) => {
   switch (slide) {
     case 0:
       return (
-        <SlideWrapper title="Your Writing and collabortive Year 2025 ✨">
+        <SlideWrapper title="Your Writing and Collabortive Year 2025 ✨">
          <h1>Hi {recap.user.name}</h1>
          <img src={recap.user.photo} alt="User Avatar" className="w-16 h-16 mt-2  rounded-full mx-auto mb-4 bg-white" />
          <h2>Here's your 2025 writing recap!</h2>
