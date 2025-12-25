@@ -43,7 +43,7 @@ const LoginButton = () => {
       console.log("User data dispatched to Redux:", user);
 
       const firebaseToken = await user.getIdToken();
-      // console.log("Firebase Token Retrieved:", firebaseToken);
+      //console.log("Firebase Token Retrieved:", firebaseToken);
       const credential = GoogleAuthProvider.credentialFromResult(result);
       if (!credential) {
         console.error("No Google credentials received!");

@@ -6,10 +6,10 @@ const LetterSchema = new Schema({
     content: String,
     publicId: {
       type: String,
-      default: "",
+      default: null,
       unique: true,
     },
-    isPublic: { type: Boolean, default: true },
+    isPublic: { type: Boolean, default: false },
     passcode: String,
     impressions: { type: Number, default: 0 },
     lastVisited: { type: Date },

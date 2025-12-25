@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@reduxjs/toolkit": "^2.6.0",
+    "@reduxjs/toolkit": "^2.9.2",
     "@tinymce/tinymce-react": "^6.0.0",
     "axios": "^1.8.1",
     "dayjs": "^1.11.13",

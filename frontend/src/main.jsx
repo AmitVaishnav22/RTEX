@@ -9,6 +9,8 @@ import LoginButton from './components/login.jsx';
 import LetterEditor from './components/RTE.jsx';
 import PublicPageView from './pages/PublicPageView.jsx';
 import App from './App.jsx'
+import ChronicleExport from './components/ExportToChronicleAI/ChronicleExport.jsx';
+import Recap2025 from './pages/Recap/Recap2025.jsx';
 
 const router = createBrowserRouter([
   {
@@ -26,6 +28,14 @@ const router = createBrowserRouter([
       {
         path:"/public/:publicId",
         element: <PublicPageView/>
+      },
+      {
+        path: '/:letterId/publish-to-chronicle-ai',
+        element: <ChronicleExport />
+      },
+      {
+        path: "/recap",
+        element: <Recap2025 />
       }
     ]
   }

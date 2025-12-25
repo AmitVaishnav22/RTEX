@@ -72,11 +72,14 @@ const LetterEditor = () => {
         console.error("No authenticated user found.");
         return;
       }
+      //https://rtex-1.onrender.com/letter
       const firebaseToken = await authUser.getIdToken();
+      //console.log("Firebase Token:", firebaseToken);
       const response = await axios.get("https://rtex-1.onrender.com/letter", {
         headers: { Authorization: `Bearer ${firebaseToken}` },
       });
       setLetters([...response.data]);
+      console.log("Letters fetched:", response.data);
     } catch (error) {
       console.error("Error fetching letters:", error);
     }finally{

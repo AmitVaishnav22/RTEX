@@ -19,12 +19,14 @@ import letterRouter from "./routes/letterRoutes.js"
 import aiServiceRouter from "./routes/aiServiceRoutes.js"
 import expoRouter from "./routes/expoServiceRoutes.js"
 import emailServiceRouter from "./routes/emailServiceRoutes/emailServiceRoutes.js"
+import recapRouter from "./routes/2025-recapRoutes/recapRoutes.js"
 
 app.use("/auth",authRouter)
 app.use("/letter",letterRouter)
 app.use("/ai",aiServiceRouter)
 app.use("/expo",expoRouter)
 app.use("/email",emailServiceRouter)
+app.use("/recap",recapRouter)
 
 
 export {
