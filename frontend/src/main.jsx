@@ -10,7 +10,7 @@ import LetterEditor from './components/RTE.jsx';
 import PublicPageView from './pages/PublicPageView.jsx';
 import App from './App.jsx'
 //import ChronicleExport from './components/ExportToChronicleAI/ChronicleExport.jsx';
-import Recap2025 from './pages/Recap/Recap2025.jsx';
+//import Recap2025 from './pages/Recap/Recap2025.jsx';
 
 const router = createBrowserRouter([
   {
@@ -33,10 +33,10 @@ const router = createBrowserRouter([
       //   path: '/:letterId/publish-to-chronicle-ai',
       //   element: <ChronicleExport />
       // },
-      {
-        path: "/recap",
-        element: <Recap2025 />
-      }
+      // {
+      //   path: "/recap",
+      //   element: <Recap2025 />
+      // }
     ]
   }
 ]);

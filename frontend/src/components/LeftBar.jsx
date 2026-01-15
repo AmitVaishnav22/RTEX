@@ -7,7 +7,7 @@ import { getAuthenticatedUser, logOut } from "../auth/firebase.js";
 import { getAuth } from "firebase/auth";
 import { Trash2 } from "lucide-react";
 import LetterMoreOptions from "./LetterMoreOptions.jsx";
-import RecapBanner from "../pages/Recap/RecapBanner.jsx";
+//import RecapBanner from "../pages/Recap/RecapBanner.jsx";
 
 const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loading}) => {
   //console.log("LeftBar component rendered");
@@ -204,7 +204,7 @@ const LeftBar = ({ onSelectLetter ,onCreateNewLetter,fetchLetters,letters,loadin
           <p className="text-sm">{user.email}</p>
         </div>
       )}
-      <RecapBanner/>
+      {/*<RecapBanner/>*/}
 
       <button
         onClick={onCreateNewLetter}
