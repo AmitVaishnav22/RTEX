@@ -34,8 +34,7 @@ function Dashboard() {
       setTotalPages(res.data.totalPages);
       setTotalExports(res.data.total || 0);
     } catch (err) {
-      setError("Failed to load dashboard data.");
-      console.error(err);
+      setError(`Failed to load dashboard data. ${err.response?.data?.error}`);
     } finally {
       setLoading(false);
     }
