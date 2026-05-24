@@ -1,0 +1,28 @@
+{
+  "name": "background-workers",
+  "version": "1.0.0",
+  "description": "",
+  "main": "background-index.js",
+  "scripts": {
+    "start": "node background-index.js",
+    "dev": "nodemon --experimental-json-modules background-index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "amqplib": "^2.0.1",
+    "axios": "^1.16.1",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.5.2",
+    "mongodb": "^7.2.0",
+    "mongoose": "^9.6.2",
+    "nodemon": "^3.1.14",
+    "redis": "^5.12.1",
+    "resend": "^6.12.3"
+  }
+}

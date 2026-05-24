@@ -24,6 +24,8 @@ RTEX EXPO is a campanion of RTEX, build for providing overall dashboard for all 
 ![alt text](RTEXEXPO-LIKEUPDATION-ARCH.png)
 - Custom DNS RTEX architecture
 ![alt text](RTEX-CUSTOM-DNS-ARCH.png)
+- Email Queueing architecture
+![alt text](EMAIL-ARCH.png)
 
 ### System Components
 - Frontend (React.js)
