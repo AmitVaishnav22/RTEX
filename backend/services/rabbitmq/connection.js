@@ -1,9 +1,16 @@
 import amqp from 'amqplib';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const RABBITMQ_URL = process.env.RABBITMQ_URL;
+dotenv.config({
+    path: path.resolve(__dirname, '../../.env')
+});
+
+const RABBITMQ_URL = process.env.RABBITMQ_URL || 'amqp://localhost:5672';
 const channels={};
 let connection=null;
 let connecting=null;
@@ -12,6 +19,7 @@ let connecting=null;
 
 async function ConnectToRabbitMQ() {
     if (connection){
+        console.log('Already connected to RabbitMQ');
         return connection;
     }
     if (connecting){
@@ -73,6 +81,10 @@ async function getChannel(name="default",options={}){
         console.error(`Channel closed for queue ${name}. Removing from cache.`);
         delete channels[name];
     });
+
+    if (name !== "default"){
+        console.log(`Channel for ${name} is ready`);
+    }
 
     return channel;
 }

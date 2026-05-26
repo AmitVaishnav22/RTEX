@@ -7,6 +7,8 @@ import {Server} from "socket.io"
 import { setupWebSocket } from "./services/webSocketService.js";
 import { setupExpoWebSocket } from "./services/webSocketExpo.js";
 import { syncImpressions } from "./workers/syncImpressions.js";
+import { ConnectToRabbitMQ } from "./services/rabbitmq/connection.js";
+import { setupRabbitMQ } from "./services/rabbitmq/setup.js";
 import cron from "node-cron";
 
 dotenv.config({
@@ -19,7 +21,9 @@ cron.schedule("*/1 * * * *", async () => {
 });
 
 const server=createServer(app)
-connectDB().then(()=>{
+connectDB().then(async ()=>{
+  await ConnectToRabbitMQ();
+  await setupRabbitMQ();
   const io=setupWebSocket(server)
   const expoIo=setupExpoWebSocket()
   server.listen(process.env.PORT|| 7000,()=>{
@@ -29,3 +33,8 @@ connectDB().then(()=>{
   console.log("MONGO DB CONNECTION ERROR",error)
 })
 
+if (process.env.NODE_ENV === 'start'){
+  console.log("Starting background workers................", process.env.NODE_ENV);
+  const { startBackgroundWorkers } = await import("./background-workers/background-index.js");
+  await startBackgroundWorkers();
+} 
