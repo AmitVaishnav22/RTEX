@@ -204,6 +204,7 @@ const getLetterByPublicId = async (req, res) => {
     const cachedData = await getCache(cacheKey);
     if (cachedData) {
       //console.log("Cache hit for:", cacheKey);
+      await incimpressionCount(publicId);
       const letter = JSON.parse(cachedData);
       const redisCount = await getimpressionCount(publicId);
       const totalImpressions = (letter.impressions || 0) + redisCount;
