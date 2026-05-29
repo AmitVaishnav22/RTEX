@@ -196,7 +196,6 @@ const getLetterByPublicId = async (req, res) => {
      if (mappedPublicId) {
       publicId = mappedPublicId; 
     }
-    await incimpressionCount(publicId);
 
     const cacheKey = passcode
       ? `publicLetter:${publicId}:locked:${passcode}`
@@ -232,6 +231,7 @@ const getLetterByPublicId = async (req, res) => {
         return res.status(405).json({ error: "Incorrect passcode" });
       }
     }
+    await incimpressionCount(publicId);
     //letter.impressions = (letter.impressions || 0) + 1;
     const now = new Date();
     if (!letter.lastVisited || now - letter.lastVisited > 60 * 60 * 1000) {
