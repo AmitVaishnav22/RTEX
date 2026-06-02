@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import { ConnectToRabbitMQ, closeRabbitMQ } from '../services/rabbitmq/connection.js';
 import { setupRabbitMQ } from '../services/rabbitmq/setup.js';
 import { startOtpEmailConsumer } from './consumers/otpEmail.consumer.js';
+import { startotpEmailConfirmConsumer } from './consumers/otpEmail.confirm.consumer.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,6 +20,7 @@ export async function startBackgroundWorkers() {
     await ConnectToRabbitMQ();
     await setupRabbitMQ();
     await startOtpEmailConsumer();
+    await startotpEmailConfirmConsumer();
     console.log('Background workers startedddddd..............', process.env.NODE_ENV);
   } catch (err) {
     if (shuttingDown) return;
