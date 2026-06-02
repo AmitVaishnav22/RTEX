@@ -7,16 +7,11 @@ const PREFETCH = parseInt(process.env.OTP_CONSUMER_PREFETCH || '5', 10);
 
 
 async function startotpEmailConfirmConsumer() {
-    const channel = await getChannel("otp_email_confirm_consumer", { prefetch: PREFETCH });
-
-    await channel.assertExchange(EXCHANGES.SUBSCRIPTION, "direct", { durable: true });
-    await channel.assertQueue(QUEUES.OPT_CONFIRMATION, { durable: true });
-    await channel.bindQueue(QUEUES.OPT_CONFIRMATION, EXCHANGES.SUBSCRIPTION, ROUTING_KEYS.OPT_CONFIRMATION);
-
+    const channel = await getChannel("subscription-confirmation-infra", { prefetch: PREFETCH });
     console.log('OTP Email confirmation consumer started, awaiting messages...');
 
     channel.consume(
-        QUEUES.OPT_CONFIRMATION,
+        QUEUES.SUBSCRIPTION_CONFIRMATION_QUEUE.SUBSCRIPTION_CONFIRMATION,
         async (msg) => {
             if (!msg) return;
             try{
@@ -26,10 +21,8 @@ async function startotpEmailConfirmConsumer() {
                     channel.ack(msg);
                     return;
                 }
-                let payload;
                 try{
-                    payload = JSON.parse(msg.content.toString());
-                    const {email} = payload || {};
+                    const {email} = JSON.parse(msg.content.toString());
                     if(!email){
                         console.error('Invalid payload: missing email. Acknowledging and dropping.', payload);
                         channel.ack(msg);
@@ -40,25 +33,19 @@ async function startotpEmailConfirmConsumer() {
                     channel.ack(msg);
                     console.log(`Sent subscription confirmation email to ${email}`);
                 }catch(err){
-                    console.error('Failed to parse message JSON. Acknowledging and dropping message.', err);
-                    channel.ack(msg);
-                    return;
-                }
-            }
-            catch(error){
-                const headers = msg.properties.headers || {};
-                const retries = Number(headers['x-retries'] || 0);
-                if(retries < MAX_RETRIES){
-                    try{
-                        const pubChannel = await getChannel("otp_email_confirm_publisher", {confirm: true});
-                        const newHeaders = {...headers, 'x-retries': retries + 1};
-                        const published = pubChannel.publish(EXCHANGES.SUBSCRIPTION, ROUTING_KEYS.OPT_CONFIRMATION, Buffer.from(msg.content), {persistent: true, contentType: "application/json", headers: newHeaders});
-                    }catch(err){
-                        console.error('Failed to re-publish message. Dropping.', err);
+                    const retries = Number(msg.properties.headers['x-retries'] || 0);
+                    if(retries >= MAX_RETRIES){
+                        channel.publish(EXCHANGES.SUBSCRIPTION, ROUTING_KEYS.SUBSCRIPTION_ROUTING_KEY.SUBSCRIPTION_CONFIRMATION_DLQ, Buffer.from(msg.content), {persistent: true, contentType: "application/json", headers: msg.properties.headers});
+                        channel.ack(msg);
+                        console.error('Max retries exceeded. Moved message to DLQ.', { headers: msg.properties.headers, retries });
+                        return;
                     }
-                }else{
-                    console.error('Max retries exceeded. Dropping message.', { headers, retries });
+                    channel.publish(EXCHANGES.SUBSCRIPTION, ROUTING_KEYS.SUBSCRIPTION_ROUTING_KEY.SUBSCRIPTION_CONFIRMATION_RETRY, Buffer.from(msg.content), {persistent: true, contentType: "application/json", headers: {...msg.properties.headers, 'x-retries': retries + 1}});
+                    channel.ack(msg);
+                    console.error('Error processing message. Retrying.', err, { headers: msg.properties.headers, retries });
                 }
+            }catch(err){
+                console.error('Unexpected error in consumer:', err);
             }
         }
     )

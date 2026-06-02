@@ -18,10 +18,9 @@ let shuttingDown = false;
 export async function startBackgroundWorkers() {
   try {
     await ConnectToRabbitMQ();
-    await setupRabbitMQ();
     await startOtpEmailConsumer();
     await startotpEmailConfirmConsumer();
-    console.log('Background workers startedddddd..............', process.env.NODE_ENV);
+    console.log('Background workers started.', process.env.NODE_ENV);
   } catch (err) {
     if (shuttingDown) return;
 

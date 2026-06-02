@@ -1,11 +1,8 @@
-import {getChannel} from "./connection.js";
-import {QUEUES, EXCHANGES, ROUTING_KEYS} from "./queues.js";
+import {setupOtpEmailInfrastructure, setupSubscriptionConfirmationInfrastructure} from "./infra/queues.infra.js";
 
 async function setupRabbitMQ(){
-    const channel=await getChannel("setup");
-    await channel.assertExchange(EXCHANGES.AUTH, "direct", {durable: true});
-    await channel.assertQueue(QUEUES.OTP_EMAIL, {durable: true});
-    await channel.bindQueue(QUEUES.OTP_EMAIL, EXCHANGES.AUTH, ROUTING_KEYS.OTP_EMAIL);
+    await setupOtpEmailInfrastructure();
+    await setupSubscriptionConfirmationInfrastructure();
     console.log('RabbitMQ setup completed');
 }
 
