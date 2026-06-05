@@ -16,16 +16,19 @@ RTEX EXPO is a campanion of RTEX, build for providing overall dashboard for all 
 - **Cross-Platform Compatibility**: Access from any modern web browser
 
 ## Architectures
-- Overall current architecture/flow
+- Overall current Architecture/flow
 ![alt text](RTEXOVERALL-ARCH.png)
-- Overall current RTEXEXPO architecture/flow
+- Overall current RTEXEXPO Architecture/flow
 ![alt text](RTEXEPO-ARCH.png)
-- Scalable View Updation architecture in RTEXEXPO
+- Scalable View Updation Architecture in RTEXEXPO
 ![alt text](RTEXEXPO-LIKEUPDATION-ARCH.png)
-- Custom DNS RTEX architecture
+- Custom DNS RTEX Architecture
 ![alt text](RTEX-CUSTOM-DNS-ARCH.png)
-- Email Queueing architecture
+- Genral Email Queueing Architecture
 ![alt text](EMAIL-ARCH.png)
+- Internal Email Queueing Architecture
+![alt text](INTERNAL-EMAIL-QUEUEING.png)
+
 
 ### System Components
 - Frontend (React.js)
