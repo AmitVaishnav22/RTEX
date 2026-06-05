@@ -28,5 +28,19 @@ async function setupSubscriptionConfirmationInfrastructure(){
     await channel.bindQueue(QUEUES.SUBSCRIPTION_CONFIRMATION_QUEUE.SUBSCRIPTION_CONFIRMATION_RETRY, EXCHANGES.SUBSCRIPTION, ROUTING_KEYS.SUBSCRIPTION_ROUTING_KEY.SUBSCRIPTION_CONFIRMATION_RETRY);
 }
 
+async function setupWeeklyDigestInfrastructure(){
+    const channel = await getChannel("weekly-digest-infra");
+    await channel.assertExchange(EXCHANGES.WEEKLY_DIGEST,"direct",{ durable: true });
+    // DLQ
+    await channel.assertQueue(QUEUES.WEEKLY_DIGEST_QUEUE.WEEKLY_DIGEST_DLQ, { durable: true });
+    await channel.bindQueue(QUEUES.WEEKLY_DIGEST_QUEUE.WEEKLY_DIGEST_DLQ, EXCHANGES.WEEKLY_DIGEST, ROUTING_KEYS.WEEKLY_DIGEST_ROUTING_KEY.WEEKLY_DIGEST_DLQ);
+    // Main queue
+    await channel.assertQueue(QUEUES.WEEKLY_DIGEST_QUEUE.WEEKLY_DIGEST, { durable: true });
+    await channel.bindQueue(QUEUES.WEEKLY_DIGEST_QUEUE.WEEKLY_DIGEST, EXCHANGES.WEEKLY_DIGEST, ROUTING_KEYS.WEEKLY_DIGEST_ROUTING_KEY.WEEKLY_DIGEST);
+    // Retry queue
+    await channel.assertQueue(QUEUES.WEEKLY_DIGEST_QUEUE.WEEKLY_DIGEST_RETRY, { durable: true , messageTtl: 30000, deadLetterExchange: EXCHANGES.WEEKLY_DIGEST, deadLetterRoutingKey: ROUTING_KEYS.WEEKLY_DIGEST_ROUTING_KEY.WEEKLY_DIGEST});
+    await channel.bindQueue(QUEUES.WEEKLY_DIGEST_QUEUE.WEEKLY_DIGEST_RETRY, EXCHANGES.WEEKLY_DIGEST, ROUTING_KEYS.WEEKLY_DIGEST_ROUTING_KEY.WEEKLY_DIGEST_RETRY);
+}
 
-export { setupOtpEmailInfrastructure , setupSubscriptionConfirmationInfrastructure};
+
+export { setupOtpEmailInfrastructure , setupSubscriptionConfirmationInfrastructure, setupWeeklyDigestInfrastructure};

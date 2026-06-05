@@ -33,4 +33,19 @@ async function publishSubscriptionConfirmed({email}){
     }
 }
 
-export { publishEmailOTP, publishSubscriptionConfirmed };
+async function publishWeeklyDigest({email}){
+    try{
+        const channel=await getChannel("weekly-digest-infra", {confirm: true});
+        const payload = {
+            email,
+            sent_at: new Date().toISOString()
+        }
+        await channel.publish(EXCHANGES.WEEKLY_DIGEST, ROUTING_KEYS.WEEKLY_DIGEST_ROUTING_KEY.WEEKLY_DIGEST, Buffer.from(JSON.stringify(payload)), {persistent: true,contentType: "application/json"});
+        console.log(`Published weekly digest message for ${email}`);
+    }catch(error){
+        console.error('Failed to publish weekly digest message:', error);
+        throw error;
+    }
+}
+
+export { publishEmailOTP, publishSubscriptionConfirmed, publishWeeklyDigest };
