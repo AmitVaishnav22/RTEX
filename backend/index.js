@@ -9,6 +9,7 @@ import { setupExpoWebSocket } from "./services/webSocketExpo.js";
 import { syncImpressions } from "./workers/syncImpressions.js";
 import { ConnectToRabbitMQ } from "./services/rabbitmq/connection.js";
 import { setupRabbitMQ } from "./services/rabbitmq/setup.js";
+import { sendWeeklyDigest , runWeeklyDigestServiceIfNeeded} from "./workers/weeklyDigest.js";
 import cron from "node-cron";
 
 dotenv.config({
@@ -28,6 +29,10 @@ connectDB().then(async ()=>{
   const expoIo=setupExpoWebSocket()
   server.listen(process.env.PORT|| 7000,()=>{
   console.log(`Server running at port : ${process.env.PORT}`)
+  runWeeklyDigestServiceIfNeeded()
+      .catch(err =>
+        console.error("Weekly digest failed:", err)
+      );
   })
 }).catch((error)=>{
   console.log("MONGO DB CONNECTION ERROR",error)
@@ -38,3 +43,5 @@ if (process.env.NODE_ENV === 'start'){
   const { startBackgroundWorkers } = await import("./background-workers/background-index.js");
   await startBackgroundWorkers();
 } 
+
+// sendWeeklyDigest().catch(err => console.error("Error sending weekly digest:", err));
