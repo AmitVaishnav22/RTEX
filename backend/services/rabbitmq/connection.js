@@ -28,8 +28,6 @@ async function ConnectToRabbitMQ() {
     connecting=(async()=>{
         try {
             connection = await amqp.connect(RABBITMQ_URL,{heartbeat:30});
-            console.log('Connected to RabbitMQ');
-
             connection.on('error', (err) => {
                 console.error('RabbitMQ connection error:', err);
             });
@@ -60,33 +58,42 @@ async function getChannel(name="default",options={}){
     if (channels[name]){
         return channels[name];
     }
-    if (!connection){
-        await ConnectToRabbitMQ();
+    channels[name]=(async()=>{
+        if (!connection){
+            await ConnectToRabbitMQ();
+        }
+        const {confirm = false, prefetch = null} = options;
+
+        const channel = confirm ? await connection.createConfirmChannel() : await connection.createChannel();
+
+        if (prefetch){
+            channel.prefetch(prefetch);
+        }
+        console.log(`Channel created for queue: ${name}`);
+
+        channel.on('error', (err) => {
+            console.error(`Channel error for queue ${name}:`, err);
+        });
+
+        channel.on('close', () => {
+            console.error(`Channel closed for queue ${name}. Removing from cache.`);
+            delete channels[name];
+        });
+
+        if (name !== "default"){
+            console.log(`Channel for ${name} is ready`);
+        }
+        return channel;
+    })();
+    try{
+        const channel=await channels[name];
+        channels[name]=channel;
+        return channel;
     }
-    const {confirm = false, prefetch = null} = options;
-
-    const channel = confirm ? await connection.createConfirmChannel() : await connection.createChannel();
-
-    if (prefetch){
-        channel.prefetch(prefetch);
-    }
-    channels[name]=channel;
-    console.log(`Channel created for queue: ${name}`);
-
-    channel.on('error', (err) => {
-        console.error(`Channel error for queue ${name}:`, err);
-    });
-
-    channel.on('close', () => {
-        console.error(`Channel closed for queue ${name}. Removing from cache.`);
+    catch(error){
         delete channels[name];
-    });
-
-    if (name !== "default"){
-        console.log(`Channel for ${name} is ready`);
+        throw error;
     }
-
-    return channel;
 }
 
 async function closeRabbitMQ(){
