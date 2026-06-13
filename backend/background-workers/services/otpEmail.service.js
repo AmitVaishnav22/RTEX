@@ -1,5 +1,5 @@
 // utils/sendOtpEmail.js
-import getTransporter from "../utils/gettansporter.util.js";
+import getTransporter from "../utils/getTansporter.util.js";
 
 async function sendOtpEmail(email, otp) {
   console.log("Sending OTP to:", email, "OTP:", otp);

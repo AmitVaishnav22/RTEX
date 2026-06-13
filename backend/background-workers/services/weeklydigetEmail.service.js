@@ -1,4 +1,4 @@
-import getTransporter from "../utils/gettansporter.util.js";
+import getTransporter from "../utils/getTansporter.util.js";
 import { formPublicLink } from "../utils/getWeeklyDigestContent.util.js";
 
 async function sendWeeklyDigestEmail(email, letters) {
