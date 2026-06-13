@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Link, Zap, Share2, Layers } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Subscription from "../components/Subcription.jsx";
 
 export default function LandingPage() {
     const navigate = useNavigate();
@@ -74,6 +75,7 @@ export default function LandingPage() {
           />
         </div>
       </section>
+      <Subscription />
 
       {/* Interlinkage with Rtex */}
       <section className="bg-black py-20 px-6">
