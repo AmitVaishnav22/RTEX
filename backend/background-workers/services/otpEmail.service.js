@@ -4,6 +4,9 @@ import getTransporter from "../utils/getTansporter.util.js";
 async function sendOtpEmail(email, otp) {
   console.log("Sending OTP to:", email, "OTP:", otp);
   const transporter = await getTransporter();
+  console.log("Verifying SMTP...");
+  await transporter.verify();
+  console.log("SMTP verified.");
 
   const html = `
     <div style="font-family:sans-serif; padding:16px;">
