@@ -22,7 +22,8 @@ async function startotpEmailConfirmConsumer() {
                     return;
                 }
                 try{
-                    const {email} = JSON.parse(msg.content.toString());
+                    const payload = JSON.parse(msg.content.toString());
+                    const { email } = payload;
                     if(!email){
                         console.error('Invalid payload: missing email. Acknowledging and dropping.', payload);
                         channel.ack(msg);
@@ -37,12 +38,12 @@ async function startotpEmailConfirmConsumer() {
                     if(retries >= MAX_RETRIES){
                         channel.publish(EXCHANGES.SUBSCRIPTION, ROUTING_KEYS.SUBSCRIPTION_ROUTING_KEY.SUBSCRIPTION_CONFIRMATION_DLQ, Buffer.from(msg.content), {persistent: true, contentType: "application/json", headers: msg.properties.headers});
                         channel.ack(msg);
-                        console.error('Max retries exceeded. Moved message to DLQ.', { headers: msg.properties.headers, retries });
+                        console.error('[OTP EMAIL CONFIRM] Max retries exceeded. Moved message to DLQ.', { headers: msg.properties.headers, retries });
                         return;
                     }
                     channel.publish(EXCHANGES.SUBSCRIPTION, ROUTING_KEYS.SUBSCRIPTION_ROUTING_KEY.SUBSCRIPTION_CONFIRMATION_RETRY, Buffer.from(msg.content), {persistent: true, contentType: "application/json", headers: {...msg.properties.headers, 'x-retries': retries + 1}});
                     channel.ack(msg);
-                    console.error('Error processing message. Retrying.', err, { headers: msg.properties.headers, retries });
+                    console.error('OTP EMAIL CONFIRM] Error processing message. Retrying.', err, { headers: msg.properties.headers, retries });
                 }
             }catch(err){
                 console.error('Unexpected error in consumer:', err);

@@ -25,7 +25,8 @@ async function startOtpEmailConsumer() {;
           return;
         }
         try {
-          const { email, otp } = JSON.parse(msg.content.toString());
+          const payload = JSON.parse(msg.content.toString());
+          const { email , otp} = payload;
           if (!email || !otp) {
             console.error('Invalid payload: missing email or otp. Acknowledging and dropping.', payload);
             channel.ack(msg);
@@ -40,12 +41,14 @@ async function startOtpEmailConsumer() {;
           if (retries >= MAX_RETRIES) {
             channel.publish(EXCHANGES.AUTH, ROUTING_KEYS.OTP_ROUTING_KEY.OTP_EMAIL_DLQ, Buffer.from(msg.content), { persistent: true, contentType: 'application/json', headers });
             channel.ack(msg);
-            console.error(`Max retries reached for ${email}. Moved message to DLQ.`, sendErr);
+            console.error('[OTP EMAIL] Max retries exceeded. Moved message to DLQ.', { headers: msg.properties.headers, retries });
+            //console.error(`Max retries reached for ${email}. Moved message to DLQ.`, sendErr);
             return;
           }
           channel.publish(EXCHANGES.AUTH, ROUTING_KEYS.OTP_ROUTING_KEY.OTP_EMAIL_RETRY, Buffer.from(msg.content), { persistent: true, contentType: 'application/json', headers: { ...headers, 'x-retries': retries + 1 } });
           channel.ack(msg);
-          console.error(`Error sending OTP email to ${email}. Retrying.`, sendErr, { retries: retries + 1 });
+          console.error('[OTP EMAIL] Error processing message. Retrying.', err, { headers: msg.properties.headers, retries });
+          //console.error(`Error sending OTP email to ${email}. Retrying.`, sendErr, { retries: retries + 1 });
           }
         }
       catch (err) {
