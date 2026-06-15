@@ -35,7 +35,7 @@ async function startOtpEmailConsumer() {;
           await sendOtpEmail(email, otp);
           channel.ack(msg);
           console.log(`Sent OTP email to ${email}`);
-        } catch (sendErr) {
+        } catch (err) {
           const headers = msg.properties.headers || {};
           const retries = Number(headers['x-retries'] || 0);
           if (retries >= MAX_RETRIES) {
