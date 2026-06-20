@@ -1,4 +1,4 @@
-import getTransporter from "../utils/getTansporter.util.js";
+import {apiInstance,createEmail} from "../utils/getBrevoUtil.js";
 import { formPublicLink } from "../utils/getWeeklyDigestContent.util.js";
 
 async function sendWeeklyDigestEmail(email, letters) {
@@ -91,13 +91,26 @@ async function sendWeeklyDigestEmail(email, letters) {
                       </div>
                     </div>
                   `;
-
-    const info = await transporter.sendMail({
-        from: `"RTEX Expo" <${process.env.GMAIL_USER}>`,
+    try {
+      const emailData = createEmail({
         to: email,
         subject: "RTEX Expo Weekly Digest",
         html,
-    });
+      });
+
+      const response = await apiInstance.transactionalEmails.sendTransacEmail(emailData);
+
+      console.log("Email sent successfully.");
+      console.log("Message ID:", response.messageId);
+
+      return response;
+    } catch (error) {
+      console.error(
+        "Brevo error:",
+        error.response?.body || error.message
+      );
+      throw error;
+    }
     console.log("Email sent:", info.messageId);
 }
 

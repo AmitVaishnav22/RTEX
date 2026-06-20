@@ -1,13 +1,6 @@
-// utils/sendOtpEmail.js
-import getTransporter from "../utils/getTansporter.util.js";
-
+import { apiInstance ,createEmail} from "../utils/getBrevoUtil.js";
 async function sendOtpEmail(email, otp) {
   console.log("Sending OTP to:", email, "OTP:", otp);
-  const transporter = await getTransporter();
-  console.log("Verifying SMTP...");
-  await transporter.verify();
-  console.log("SMTP verified.");
-
   const html = `
     <div style="font-family:sans-serif; padding:16px;">
       <h2>Verify your RTEX Expo subscription</h2>
@@ -17,19 +10,29 @@ async function sendOtpEmail(email, otp) {
       <p>— RTEX Expo Team</p>
     </div>
   `;
+    try {
+      const emailData = createEmail({
+        to: email,
+        subject: "RTEX Expo Email Verification Code",
+        html,
+      });
 
-  const info = await transporter.sendMail({
-    from: `"RTEX Expo" <${process.env.GMAIL_USER}>`,
-    to: email,
-    subject: "RTEX Expo Email Verification Code",
-    html,
-  });
+      const response = await apiInstance.transactionalEmails.sendTransacEmail(emailData);
 
-  console.log("Email sent:", info.messageId);
+      console.log("Email sent successfully.");
+      console.log("Message ID:", response.messageId);
+
+      return response;
+    } catch (error) {
+      console.error(
+        "Brevo error:",
+        error.response?.body || error.message
+      );
+      throw error;
+    }
 }
 
 async function sendSubscriptionConfirmationEmail(email) {
-  const transporter = await getTransporter();
   const html = `
     <div style="font-family:sans-serif; padding:16px;">
       <h2>Subscription Confirmed</h2>
@@ -38,13 +41,26 @@ async function sendSubscriptionConfirmationEmail(email) {
       <p>— RTEX Expo Team</p>
     </div>
   `;
-  const info = await transporter.sendMail({
-    from: `"RTEX Expo" <${process.env.GMAIL_USER}>`,
-    to: email,
-    subject: "RTEX Expo Subscription Confirmed",
-    html,
-  });
-  console.log("Subscription confirmation email sent:", info.messageId);
+  try {
+      const emailData = createEmail({
+        to: email,
+        subject: "RTEX Expo Subscription Confirmed",
+        html,
+      });
+
+      const response = await apiInstance.transactionalEmails.sendTransacEmail(emailData);
+
+      console.log("Email sent successfully.");
+      console.log("Message ID:", response.messageId);
+
+      return response;
+    } catch (error) {
+      console.error(
+        "Brevo error:",
+        error.response?.body || error.message
+      );
+      throw error;
+    }
 }
 
 export { sendOtpEmail, sendSubscriptionConfirmationEmail };
