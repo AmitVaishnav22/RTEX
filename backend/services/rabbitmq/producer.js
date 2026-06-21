@@ -11,7 +11,6 @@ async function publishEmailOTP({email,otp}){
             created_at: new Date().toISOString()
         }
         const messageWroteToSocket = channel.publish(EXCHANGES.AUTH, ROUTING_KEYS.OTP_ROUTING_KEY.OTP_EMAIL, Buffer.from(JSON.stringify(payload)), {persistent: true,contentType: "application/json"});
-        console.log("flag",messageWroteToSocket);
         if (! messageWroteToSocket){
             await new Promise(resolve => channel.once("drain", resolve));  //backpressure handling, simply stops writing to rabbitmq socket buffer if the buffer memory is full.
         }

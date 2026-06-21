@@ -64,8 +64,8 @@ async function getChannel(name="default",options={}){
         }
         const {confirm = false, prefetch = null} = options;
 
-        const channel = confirm ? await connection.createConfirmChannel() : await connection.createChannel();
-
+        //const channel = confirm ? await connection.createConfirmChannel() : await connection.createChannel();
+        const channel = await connection.createConfirmChannel();
         if (prefetch){
             channel.prefetch(prefetch);
         }
