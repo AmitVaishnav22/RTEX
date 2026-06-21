@@ -15,7 +15,7 @@ async function sendWeeklyDigest(){
     }
 }
 
-async function runWeeklyDigestServiceIfNeeded(email){
+async function runWeeklyDigestServiceIfNeeded(){
     const today = new Date();
     if (today.getDay()!==0) {
         return;
@@ -26,7 +26,7 @@ async function runWeeklyDigestServiceIfNeeded(email){
         return;
     }
     await sendWeeklyDigest();
-    await setCache("weekly_digest_sent", "true", 24 * 60 * 60 * 7);
+    await setCache("weekly_digest_sent", "true", 24 * 60 * 60);
     console.log("Weekly digest sent and cache updated.");
 }
 

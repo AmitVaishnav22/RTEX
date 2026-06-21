@@ -2,8 +2,6 @@ import {apiInstance,createEmail} from "../utils/getBrevoUtil.js";
 import { formPublicLink } from "../utils/getWeeklyDigestContent.util.js";
 
 async function sendWeeklyDigestEmail(email, letters) {
-    const transporter = await getTransporter();
-
     const html = `
                     <div style="background:#0f172a;padding:40px 20px;font-family:Arial,Helvetica,sans-serif;color:#e2e8f0;">
                       <div style="max-width:700px;margin:auto;background:#111827;border:1px solid #1e293b;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.3);">

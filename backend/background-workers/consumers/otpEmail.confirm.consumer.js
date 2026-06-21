@@ -42,6 +42,7 @@ async function startotpEmailConfirmConsumer() {
                         return;
                     }
                     channel.publish(EXCHANGES.SUBSCRIPTION, ROUTING_KEYS.SUBSCRIPTION_ROUTING_KEY.SUBSCRIPTION_CONFIRMATION_RETRY, Buffer.from(msg.content), {persistent: true, contentType: "application/json", headers: {...msg.properties.headers, 'x-retries': retries + 1}});
+                    await channel.waitForConfirms();
                     channel.ack(msg);
                     console.error('OTP EMAIL CONFIRM] Error processing message. Retrying.', err, { headers: msg.properties.headers, retries });
                 }

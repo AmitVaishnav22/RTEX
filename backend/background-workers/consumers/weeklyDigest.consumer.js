@@ -28,8 +28,6 @@ async function startWeeklyDigestConsumer() {
                         return;
                     }
                     console.log(`Received weekly digest request for ${email}`);
-                    // Here you would integrate with your email service to send the digest
-                    // For example: await sendWeeklyDigestEmail(email, weeklyDigestContent);
                     await sendWeeklyDigestEmail(email, weeklyDigestContent);
                     console.log(`Sent weekly digest email to ${email}`);
                     channel.ack(msg);
@@ -42,6 +40,7 @@ async function startWeeklyDigestConsumer() {
                         return;
                     }
                     channel.publish(EXCHANGES.WEEKLY_DIGEST, ROUTING_KEYS.WEEKLY_DIGEST_ROUTING_KEY.WEEKLY_DIGEST_RETRY, Buffer.from(msg.content), {persistent: true, contentType: "application/json", headers: {...msg.properties.headers, 'x-retries': retries + 1}});
+                    await channel.waitForConfirms();
                     channel.ack(msg);
                     console.error('[WEEKLY DIGEST] Error processing message. Retrying.', err, { headers: msg.properties.headers, retries });
                 }

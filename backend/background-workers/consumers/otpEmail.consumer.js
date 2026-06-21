@@ -45,7 +45,8 @@ async function startOtpEmailConsumer() {;
             //console.error(`Max retries reached for ${email}. Moved message to DLQ.`, sendErr);
             return;
           }
-          channel.publish(EXCHANGES.AUTH, ROUTING_KEYS.OTP_ROUTING_KEY.OTP_EMAIL_RETRY, Buffer.from(msg.content), { persistent: true, contentType: 'application/json', headers: { ...headers, 'x-retries': retries + 1 } });
+          channel.publish(EXCHANGES.AUTH, ROUTING_KEYS.OTP_ROUTING_KEY.OTP_EMAIL_RETRY, Buffer.from(msg.content), { persistent: true, contentType: 'application/json', headers: { ...headers, 'x-retries': retries + 1 , "x-last-error":err.message, "x-last-failed-at":new Date().toISOString()} });
+          await channel.waitForConfirms();
           channel.ack(msg);
           console.error('[OTP EMAIL] Error processing message. Retrying.', err, { headers: msg.properties.headers, retries });
           //console.error(`Error sending OTP email to ${email}. Retrying.`, sendErr, { retries: retries + 1 });

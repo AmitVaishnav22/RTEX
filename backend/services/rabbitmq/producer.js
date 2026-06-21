@@ -10,7 +10,12 @@ async function publishEmailOTP({email,otp}){
             otp,
             created_at: new Date().toISOString()
         }
-        await channel.publish(EXCHANGES.AUTH, ROUTING_KEYS.OTP_ROUTING_KEY.OTP_EMAIL, Buffer.from(JSON.stringify(payload)), {persistent: true,contentType: "application/json"});
+        const messageWroteToSocket = channel.publish(EXCHANGES.AUTH, ROUTING_KEYS.OTP_ROUTING_KEY.OTP_EMAIL, Buffer.from(JSON.stringify(payload)), {persistent: true,contentType: "application/json"});
+        consolse.log("flag",messageWroteToSocket);
+        if (! messageWroteToSocket){
+            await new Promise(resolve => channel.once("drain", resolve));  //backpressure handling, simply stops writing to rabbitmq socket buffer if the buffer memory is full.
+        }
+        await channel.waitForConfirms();
         console.log(`Published OTP email message for ${email}`);
     }catch(error){
         console.error('Failed to publish OTP email message:', error);
