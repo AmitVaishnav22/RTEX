@@ -6,6 +6,11 @@ yarn-error.log
 # Environment files
 frontend/.env
 backend/.env
+retOai/.env
+retOai/.venv/
+retOai/__pycache__/
+__pycache__/
+.venv/
 backend/firebaseServiceAsccount.json
 backend/node_modules
 .env.local

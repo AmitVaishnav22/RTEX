@@ -1,6 +1,7 @@
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
+import http from "http"
 
 const app = express()
 
@@ -28,6 +29,35 @@ app.use("/expo",expoRouter)
 app.use("/email",emailServiceRouter)
 app.use("/recap",recapRouter)
 
+const RETOAI_SERVICE_URL = process.env.RETOAI_SERVICE_URL || "http://localhost:8000";
+
+app.use("/retOai", (req, res) => {
+  const target = new URL(RETOAI_SERVICE_URL);
+  const targetPath = req.originalUrl.replace(/^\/retOai/, "") || "/";
+
+  const proxyReq = http.request(
+    {
+      host: target.hostname,
+      port: target.port || (target.protocol === "https:" ? 443 : 80),
+      path: targetPath,
+      method: req.method,
+      headers: { ...req.headers },
+    },
+    (proxyRes) => {
+      res.writeHead(proxyRes.statusCode, proxyRes.headers);
+      proxyRes.pipe(res);
+    }
+  );
+
+  proxyReq.on("error", (err) => {
+    console.error("RETOAI proxy error:", err.message);
+    if (!res.headersSent) {
+      res.status(502).json({ error: "RETOAI service unreachable" });
+    }
+  });
+
+  req.pipe(proxyReq);
+});
 
 export {
     app
