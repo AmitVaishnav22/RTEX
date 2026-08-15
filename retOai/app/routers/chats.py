@@ -206,7 +206,7 @@ class ChatRouter:
     ) -> dict:
         title = body.title.strip()
         if not title:
-            raise HTTPException(status_code=400, detail="Title is required")
+            raise HTTPException(status_code=400, detail="Title is required") 
 
         session = await self._repository.get_session(session_id, user["uid"])
         if not session:
